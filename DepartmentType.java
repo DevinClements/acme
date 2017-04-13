@@ -1,0 +1,3 @@
+enum DepartmentType {
+	Production, IndirectProduction
+}
