@@ -16,8 +16,8 @@ public class Driver {
 
 		Calendar calEnd = Calendar.getInstance();
 		calEnd.set(Calendar.DAY_OF_WEEK, 2);
-		calEnd.set(Calendar.HOUR_OF_DAY, 1);
-		calEnd.set(Calendar.MINUTE, 0);
+		calEnd.set(Calendar.HOUR_OF_DAY, 2);
+		calEnd.set(Calendar.MINUTE, 30);
 		calEnd.set(Calendar.SECOND, 0);
 		calEnd.set(Calendar.MILLISECOND, 0);
 
@@ -27,7 +27,6 @@ public class Driver {
 		dept.addEmployee("123");
 		dept.punch("123", HourType.Regular, dateStart);
 		dept.punch("123", HourType.Regular, dateEnd);
-
 		
 		// Check hours
 		Calendar calStartCheck = Calendar.getInstance();

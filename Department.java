@@ -129,6 +129,6 @@ public class Department {
 			i = i + 2;
 		}
 
-		return (double) ((millisecondsWorked / (1000*60*60)));
+		return (((double) millisecondsWorked / (1000*60*60)));
 	}
 }
