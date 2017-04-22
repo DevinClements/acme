@@ -1,39 +1,41 @@
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
+import java.util.Calendar;
+import java.util.Date;
 
 public class Department {
-	int code;
+	String code;
 	DepartmentType type;
-	HashMap<Int, Employee> employees;
-	HashMap<Date, ArrayList<Ticket>> tickets;
+	HashMap<String, Employee> employees;
+	HashMap<String, ArrayList<Ticket>> tickets;
 
-	public Department(int code, DepartmentType type, HashMap<Int, Employee> employees, HashMap<Date, ArrayList<Ticket>> tickets) {
+	public Department(String code, DepartmentType type, HashMap<String, Employee> employees, HashMap<String, ArrayList<Ticket>> tickets) {
 		this.code = code;
 		this.type = type;
 		this.employees = employees;
 		this.tickets = tickets;
 	}
 
-	public Department(int code, DepartmentType type) {
-		this(code, type, new HashMap<Int, Employee>(), new HashMap<Date, ArrayList<Ticket>>());
+	public Department(String code, DepartmentType type) {
+		this(code, type, new HashMap<String, Employee>(), new HashMap<String, ArrayList<Ticket>>());
 	}
 
-	public Employee addEmployee(int id) {
-		Employee employee = Employee(id);
+	public Employee addEmployee(String id) {
+		Employee employee = new Employee(id);
 		employees.put(employee.id, employee);
 		return employee;
 	}
 
-	public Employee getEmployee(int id) {
+	public Employee getEmployee(String id) {
 		return employees.get(id);
 	}
 
-	public ArrayList<Ticket> getEmployeeTickets(int id) {
-		ArrayList<Ticket> employeeTickets = ArrayList<Ticket>();
+	public ArrayList<Ticket> getEmployeeTickets(String id) {
+		ArrayList<Ticket> employeeTickets = new ArrayList<Ticket>();
 		for(ArrayList<Ticket> ticketsForDate : tickets.values()) {
 			for(Ticket ticket : ticketsForDate) {
-				if(ticket.employeeId == id) {
+				if(ticket.employeeId.equals(id)) {
 					employeeTickets.add(ticket);
 				}
 			}
@@ -41,53 +43,74 @@ public class Department {
 		return employeeTickets;
 	}
 
-	public ArrayList<Ticket> getEmployeeTickets(int id, Date date) {
-		ArrayList<Ticket> employeeTickets = ArrayList<Ticket>();
-		ArrayList<Ticket> ticketsOnDate = tickets.get(date);
+	public ArrayList<Ticket> getEmployeeTickets(String id, Date date) {
+		ArrayList<Ticket> employeeTickets = new ArrayList<Ticket>();
+		ArrayList<Ticket> ticketsForDate = tickets.get(date);
 		for(Ticket ticket : ticketsForDate) {
-			if(ticket.employeeId == id) {
+			if(ticket.employeeId.equals(id)) {
 				employeeTickets.add(ticket);
 			}
 		}
 		return employeeTickets;
 	}
 
-	private Ticket clockIn(int employeeId, HourType hourType) {
-		Ticket ticket = new Ticket(hourType, TicketType.ClockIn, employeeId);
-		tickets.put(ticket.datetime, ticket);
+	private Ticket clockIn(String employeeId, HourType hourType, Date date) {
+		Ticket ticket = new Ticket(date, hourType, TicketType.ClockIn, employeeId);
+		ArrayList<Ticket>ticketsForDay = tickets.get(ticket.dateKey());
+		if(ticketsForDay == null) {
+			ticketsForDay = new ArrayList<Ticket>();
+			tickets.put(ticket.dateKey(), ticketsForDay);
+		}
+		ticketsForDay.add(ticket);
 		return ticket;
 	}
 
-	private Ticket clockOut(int employeeId, HourType hourType) {
-		Ticket ticket = new Ticket(hourType, TicketType.ClockOut, employeeId);
-		tickets.put(ticket.datetime, ticket);
+	private Ticket clockOut(String employeeId, HourType hourType, Date date) {
+		Ticket ticket = new Ticket(date, hourType, TicketType.ClockOut, employeeId);
+		ArrayList<Ticket>ticketsForDay = tickets.get(ticket.dateKey());
+		if(ticketsForDay == null) {
+			ticketsForDay = new ArrayList<Ticket>();
+			tickets.put(ticket.dateKey(), ticketsForDay);
+		}
+		ticketsForDay.add(ticket);
+		ticketsForDay.add(ticket);
 		return ticket;
 	}
 
-	public Ticket punch(int employeeId, HourType hourType) {
+	public Ticket punch(String employeeId, HourType hourType, Date date) {
 		Employee employee = getEmployee(employeeId);
+		
 		if(employee == null) {
 			return null;
 		}
+
+		if(tickets.isEmpty()) {
+			return clockIn(employee.id, hourType, date);
+		}
+		
 		ArrayList<Ticket> employeeTickets = getEmployeeTickets(employeeId);
 		int lastIndex = employeeTickets.size() - 1;
 		Ticket latestTicket = employeeTickets.get(lastIndex);
 		if(latestTicket.ticketType == TicketType.ClockIn) {
-			return clockOut(employee.id, hourType);
+			return clockOut(employee.id, hourType, date);
 		}
-		return clockIn(employee.id, hourType);
+		return clockIn(employee.id, hourType, date);
 	}
 
-	public double getHours(int employeeId, Date start, Date end) {
+	public Ticket punch(String employeeId, HourType hourType) {
+		return punch(employeeId, hourType, new Date());
+	}
+
+	public double getHours(String employeeId, Date start, Date end) {
 		ArrayList<Ticket> employeeTickets = getEmployeeTickets(employeeId);
-		ArrayList<Ticket> ticketsToCalculate = ArrayList<Ticket>();
-		for(Ticekt ticket : employeeTickets) {
-			if(ticket.dateTime.compareTo(start) >= 0 && ticket.datetime.compareTo(end) <= 0) {
+		ArrayList<Ticket> ticketsToCalculate = new ArrayList<Ticket>();
+		for(Ticket ticket : employeeTickets) {
+			if(ticket.datetime.compareTo(start) >= 0 && ticket.datetime.compareTo(end) <= 0) {
 				ticketsToCalculate.add(ticket);
 			}
 		}
 		
-		Collection.sort(ticketsToCalculate);
+		Collections.sort(ticketsToCalculate);
 		
 		// check to make sure all clock ins have an associated clock out.
 		// it is not possible to clock out without having a saved clock in
@@ -102,10 +125,10 @@ public class Department {
 		for(int i = 0; i < ticketsToCalculate.size() - 1; i++) {
 			Ticket ticketIn = ticketsToCalculate.get(i);
 			Ticket ticketOut = ticketsToCalculate.get(i+1);
-			millisecondsWorked += ticketOut.getTime() - ticketIn.getTime();
+			millisecondsWorked += ticketOut.datetime.getTime() - ticketIn.datetime.getTime();
 			i = i + 2;
 		}
 
-		return (double) ((milliseconds / (1000*60*60)) % 24)
+		return (double) ((millisecondsWorked / (1000*60*60)) % 24);
 	}
 }

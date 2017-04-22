@@ -1,21 +1,30 @@
-public class Ticket implements Comparable {
-	private Date datetime;
-	private HourType hourType;
-	private TicketType ticketType;
-	private int employeeId;
+import java.util.Calendar;
+import java.util.Date;
 
-	public Ticket(Date datetime, HourType hourType, TicketType ticketType, int employeeId) {
+public class Ticket implements Comparable<Ticket> {
+	Date datetime;
+	HourType hourType;
+	TicketType ticketType;
+	String employeeId;
+
+	public Ticket(Date datetime, HourType hourType, TicketType ticketType, String employeeId) {
 		this.datetime = datetime;
 		this.hourType = hourType;
 		this.ticketType = ticketType;
 		this.employeeId = employeeId;
 	}
 
-	public Ticket(HourType hourType, TicketType ticketType, int employeeId) {
+	public Ticket(HourType hourType, TicketType ticketType, String employeeId) {
 		this(new Date(), hourType, ticketType, employeeId);
 	}
 
 	public int compareTo(Ticket ticket) {
 		return this.datetime.compareTo(ticket.datetime);
+	}
+
+	public String dateKey() {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(datetime);
+		return "" + cal.get(Calendar.MONTH) + "-" + cal.get(Calendar.DAY_OF_WEEK) + "-" + cal.get(Calendar.YEAR);
 	}
 }

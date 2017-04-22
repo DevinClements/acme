@@ -1,5 +1,5 @@
 public class Manager extends Employee {
-	public Manager(int id) {
+	public Manager(String id) {
 		super(id);
 	}
 }

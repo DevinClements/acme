@@ -1,7 +1,7 @@
 public class Employee {
-	int id;
+	String id;
 
-	public Employee(int id) {
-		this.id = id;
+	public Employee(String id) {
+		this.id = id.toLowerCase();
 	}
 }
