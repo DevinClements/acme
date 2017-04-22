@@ -11,6 +11,10 @@ public class Ticket implements Comparable {
 		this.employeeId = employeeId;
 	}
 
+	public Ticket(HourType hourType, TicketType ticketType, int employeeId) {
+		this(new Date(), hourType, ticketType, employeeId);
+	}
+
 	public int compareTo(Ticket ticket) {
 		return this.datetime.compareTo(ticket.datetime);
 	}
