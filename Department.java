@@ -45,4 +45,31 @@ public class Department {
 		}
 		return employeeTickets;
 	}
+
+	private Ticket clockIn(int employeeId, HourType hourType) {
+		Ticket ticket = new Ticket(hourType, TicketType.ClockIn, employeeId);
+		tickets.put(ticket.datetime, ticket);
+		return ticket;
+	}
+
+	private Ticket clockOut(int employeeId, HourType hourType) {
+		Ticket ticket = new Ticket(hourType, TicketType.ClockOut, employeeId);
+		tickets.put(ticket.datetime, ticket);
+		return ticket;
+	}
+
+	public Ticket punch(int employeeId, HourType hourType) {
+		Employee employee = getEmployee(employeeId);
+		if(employee == null) {
+			return null;
+		}
+		ArrayList<Ticket> employeeTickets = getEmployeeTickets(employeeId);
+		int lastIndex = employeeTickets.size() - 1;
+		Ticket latestTicket = employeeTickets.get(lastIndex);
+		if(latestTicket.ticketType == TicketType.ClockIn) {
+			return clockOut(employee.id, hourType);
+		}
+		return clockIn(employee.id, hourType);
+	}
+
 }
