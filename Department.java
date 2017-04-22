@@ -72,4 +72,34 @@ public class Department {
 		return clockIn(employee.id, hourType);
 	}
 
+	public double getHours(int employeeId, Date start, Date end) {
+		ArrayList<Ticket> employeeTickets = getEmployeeTickets(employeeId);
+		ArrayList<Ticket> ticketsToCalculate = ArrayList<Ticket>();
+		for(Ticekt ticket : employeeTickets) {
+			if(ticket.dateTime.compareTo(start) >= 0 && ticket.datetime.compareTo(end) <= 0) {
+				ticketsToCalculate.add(ticket);
+			}
+		}
+		
+		Collection.sort(ticketsToCalculate);
+		
+		// check to make sure all clock ins have an associated clock out.
+		// it is not possible to clock out without having a saved clock in
+		// if there is an odd number of tickets, the last ticket must be a
+		// clock in without an associated clock out, so we remove it
+		if(ticketsToCalculate.size() % 2 != 0) {
+			int lastIndex = ticketsToCalculate.size() - 1;
+			tickets.remove(lastIndex);
+		}
+		
+		long millisecondsWorked = 0;
+		for(int i = 0; i < ticketsToCalculate.size() - 1; i++) {
+			Ticket ticketIn = ticketsToCalculate.get(i);
+			Ticket ticketOut = ticketsToCalculate.get(i+1);
+			millisecondsWorked += ticketOut.getTime() - ticketIn.getTime();
+			i = i + 2;
+		}
+
+		return (double) ((milliseconds / (1000*60*60)) % 24)
+	}
 }
