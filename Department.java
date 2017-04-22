@@ -126,7 +126,6 @@ public class Department {
 			Ticket ticketIn = ticketsToCalculate.get(i);
 			Ticket ticketOut = ticketsToCalculate.get(i+1);
 			millisecondsWorked += ticketOut.datetime.getTime() - ticketIn.datetime.getTime();
-			System.out.println(millisecondsWorked);
 			i = i + 2;
 		}
 
