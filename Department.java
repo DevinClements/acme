@@ -1,5 +1,6 @@
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.Collection;
 
 public class Department {
 	int code;
@@ -22,7 +23,15 @@ public class Department {
 		return employees.get(id);
 	}
 
-	public ArrayList<Tickets> getEmployeeTickets() {
-		
+	public ArrayList<Ticket> getEmployeeTickets(int id) {
+		ArrayList<Ticket> employeeTickets = ArrayList<Ticket>();
+		for(ArrayList<Ticket> ticketsForDate : tickets.values()) {
+			for(Ticket ticket : ticketsForDate) {
+				if(ticket.employeeId == id) {
+					employeeTickets.add(ticket);
+				}
+			}
+		}
+		return employeeTickets;
 	}
 }
