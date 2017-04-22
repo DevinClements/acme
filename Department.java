@@ -19,6 +19,12 @@ public class Department {
 		this(code, type, new HashMap<Int, Employee>(), new HashMap<Date, ArrayList<Ticket>>());
 	}
 
+	public Employee addEmployee(int id) {
+		Employee employee = Employee(id);
+		employees.put(employee.id, employee);
+		return employee;
+	}
+
 	public Employee getEmployee(int id) {
 		return employees.get(id);
 	}
