@@ -34,4 +34,15 @@ public class Department {
 		}
 		return employeeTickets;
 	}
+
+	public ArrayList<Ticket> getEmployeeTickets(int id, Date date) {
+		ArrayList<Ticket> employeeTickets = ArrayList<Ticket>();
+		ArrayList<Ticket> ticketsOnDate = tickets.get(date);
+		for(Ticket ticket : ticketsForDate) {
+			if(ticket.employeeId == id) {
+				employeeTickets.add(ticket);
+			}
+		}
+		return employeeTickets;
+	}
 }
