@@ -9,14 +9,14 @@ public class Driver {
 		// Set hours
 		Calendar calStart = Calendar.getInstance();
 		calStart.set(Calendar.DAY_OF_WEEK, 1);
-		calStart.set(Calendar.HOUR_OF_DAY, 5);
+		calStart.set(Calendar.HOUR_OF_DAY, 1);
 		calStart.set(Calendar.MINUTE, 0);
 		calStart.set(Calendar.SECOND, 0);
 		calStart.set(Calendar.MILLISECOND, 0);
 
 		Calendar calEnd = Calendar.getInstance();
-		calEnd.set(Calendar.DAY_OF_WEEK, 1);
-		calEnd.set(Calendar.HOUR_OF_DAY, 20);
+		calEnd.set(Calendar.DAY_OF_WEEK, 2);
+		calEnd.set(Calendar.HOUR_OF_DAY, 1);
 		calEnd.set(Calendar.MINUTE, 0);
 		calEnd.set(Calendar.SECOND, 0);
 		calEnd.set(Calendar.MILLISECOND, 0);
@@ -38,7 +38,7 @@ public class Driver {
 		calStartCheck.set(Calendar.MILLISECOND, 0);
 
 		Calendar calEndCheck = Calendar.getInstance();
-		calEndCheck.set(Calendar.DAY_OF_WEEK, 2);
+		calEndCheck.set(Calendar.DAY_OF_WEEK, 4);
 		calEndCheck.set(Calendar.HOUR_OF_DAY, 1);
 		calEndCheck.set(Calendar.MINUTE, 0);
 		calEndCheck.set(Calendar.SECOND, 0);
