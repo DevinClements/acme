@@ -5,48 +5,36 @@ import java.util.Date;
 public class Driver {
 	public static void main(String[] args) {
 		Department dept = new Department("123", DepartmentType.Production);
+		dept.addEmployee("123");
 		
 		// Set hours
-		Calendar calStart = Calendar.getInstance();
-		calStart.set(Calendar.DAY_OF_WEEK, 1);
-		calStart.set(Calendar.HOUR_OF_DAY, 1);
-		calStart.set(Calendar.MINUTE, 0);
-		calStart.set(Calendar.SECOND, 0);
-		calStart.set(Calendar.MILLISECOND, 0);
-
-		Calendar calEnd = Calendar.getInstance();
-		calEnd.set(Calendar.DAY_OF_WEEK, 2);
-		calEnd.set(Calendar.HOUR_OF_DAY, 2);
-		calEnd.set(Calendar.MINUTE, 30);
-		calEnd.set(Calendar.SECOND, 0);
-		calEnd.set(Calendar.MILLISECOND, 0);
-
-		Date dateStart = calStart.getTime();
-		Date dateEnd = calEnd.getTime();
+		Date punchOne 	= getPunchCard(1,1,0);
+		Date punchTwo 	= getPunchCard(1,6,0);
+		Date punchThree = getPunchCard(1,13,0);
+		Date punchFour 	= getPunchCard(1,18,0);
+		Date punchFive 	= getPunchCard(2,1,0);
+		Date punchSix 	= getPunchCard(2,6,0);
 		
-		dept.addEmployee("123");
-		dept.punch("123", HourType.Regular, dateStart);
-		dept.punch("123", HourType.Regular, dateEnd);
+		dept.punch("123", HourType.Regular, punchOne);
+		dept.punch("123", HourType.Regular, punchTwo);
+		dept.punch("123", HourType.Regular, punchThree);
+		dept.punch("123", HourType.Regular, punchFour);
+		dept.punch("123", HourType.Regular, punchFive);
+		dept.punch("123", HourType.Regular, punchSix);
 		
 		// Check hours
-		Calendar calStartCheck = Calendar.getInstance();
-		calStartCheck.set(Calendar.DAY_OF_WEEK, 1);
-		calStartCheck.set(Calendar.HOUR_OF_DAY, 1);
-		calStartCheck.set(Calendar.MINUTE, 0);
-		calStartCheck.set(Calendar.SECOND, 0);
-		calStartCheck.set(Calendar.MILLISECOND, 0);
-
-		Calendar calEndCheck = Calendar.getInstance();
-		calEndCheck.set(Calendar.DAY_OF_WEEK, 4);
-		calEndCheck.set(Calendar.HOUR_OF_DAY, 1);
-		calEndCheck.set(Calendar.MINUTE, 0);
-		calEndCheck.set(Calendar.SECOND, 0);
-		calEndCheck.set(Calendar.MILLISECOND, 0);
-
-		Date dateStartCheck = calStartCheck.getTime();
-		Date dateEndCheck = calEndCheck.getTime();
-
-		double hours = dept.getHours("123", dateStartCheck, dateEndCheck);
+		Date dateToCheck = getPunchCard(2,0,0);
+		double hours = dept.getHoursWorked("123", dateToCheck);
 		System.out.println(hours);
+	}
+
+	public static Date getPunchCard(int day, int hour, int minute) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.DAY_OF_WEEK, day);
+		cal.set(Calendar.HOUR_OF_DAY, hour);
+		cal.set(Calendar.MINUTE, minute);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
 	}
 }

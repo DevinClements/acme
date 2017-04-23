@@ -18,13 +18,17 @@ public class Ticket implements Comparable<Ticket> {
 		this(new Date(), hourType, ticketType, employeeId);
 	}
 
+	public static String keyFromDate(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return "" + cal.get(Calendar.MONTH) + "-" + cal.get(Calendar.DAY_OF_WEEK) + "-" + cal.get(Calendar.YEAR);
+	}
+
 	public int compareTo(Ticket ticket) {
 		return this.datetime.compareTo(ticket.datetime);
 	}
 
 	public String dateKey() {
-		Calendar cal = Calendar.getInstance();
-		cal.setTime(datetime);
-		return "" + cal.get(Calendar.MONTH) + "-" + cal.get(Calendar.DAY_OF_WEEK) + "-" + cal.get(Calendar.YEAR);
+		return Ticket.keyFromDate(datetime);
 	}
 }
