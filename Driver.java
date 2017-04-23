@@ -13,7 +13,7 @@ public class Driver {
 		Date punchThree = getPunchCard(1,13,0);
 		Date punchFour 	= getPunchCard(1,18,0);
 		Date punchFive 	= getPunchCard(2,1,0);
-		Date punchSix 	= getPunchCard(2,6,0);
+		Date punchSix 	= getPunchCard(2,6,30);
 		
 		dept.punch("123", HourType.Regular, punchOne);
 		dept.punch("123", HourType.Regular, punchTwo);
@@ -24,8 +24,8 @@ public class Driver {
 		
 		// Check hours
 		Date dateToCheck = getPunchCard(2,0,0);
-		double hours = dept.getHoursWorked("123", dateToCheck);
-		System.out.println(hours);
+		Timesheet sheet = dept.getTimesheet("123", dateToCheck);
+		System.out.println(sheet.getHoursWorked());
 	}
 
 	public static Date getPunchCard(int day, int hour, int minute) {
