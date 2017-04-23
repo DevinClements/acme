@@ -6,8 +6,8 @@ public class Timesheet {
 	ArrayList<Ticket> tickets;
 
 	public Timesheet(ArrayList<Ticket> tickets) {
-		Collections.sort(tickets);
-		this.tickets = tickets;
+		this.tickets = new ArrayList<Ticket>(tickets);
+		Collections.sort(this.tickets);
 	}
 
 	public double getHoursWorked() {
