@@ -36,10 +36,41 @@ public class Department {
 		return punch(employeeId, hourType, new Date());
 	}
 
+	public void punch(String id, HourType hourType, int day, int hours, int minutes) {
+		Calendar calStart = Calendar.getInstance();
+		calStart.set(Calendar.DAY_OF_WEEK, day);
+		calStart.set(Calendar.HOUR_OF_DAY, 1);
+		calStart.set(Calendar.MINUTE, 0);
+		calStart.set(Calendar.SECOND, 0);
+		calStart.set(Calendar.MILLISECOND, 0);
+
+		Calendar calEnd = Calendar.getInstance();
+		calEnd.set(Calendar.DAY_OF_WEEK, day);
+		calEnd.set(Calendar.HOUR_OF_DAY, hours+1);
+		calEnd.set(Calendar.MINUTE, minutes);
+		calEnd.set(Calendar.SECOND, 0);
+		calEnd.set(Calendar.MILLISECOND, 0);
+
+		Date start = calStart.getTime();
+		Date end = calEnd.getTime();
+
+		punch(id, hourType, start);
+		punch(id, hourType, end);
+	}
+
 	public Timesheet getTimesheet(String employeeId, Date date) {
 		ArrayList<Ticket> employeeTickets = getEmployeeTickets(employeeId, date);
 		Timesheet sheet = new Timesheet(employeeTickets);
 		return sheet;
+	}
+
+	public Timesheet getTimesheet(String id, Date[] dates) {
+		ArrayList<Ticket> tickets = new ArrayList<Ticket>();
+		for(Date date : dates) {
+			ArrayList<Ticket> ticketsForDate = getEmployeeTickets(id, date);
+			tickets.addAll(ticketsForDate);
+		}
+		return new Timesheet(tickets);
 	}
 	
 	public ArrayList<Ticket> getEmployeeTickets(String id, Date date) {
