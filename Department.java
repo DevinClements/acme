@@ -3,8 +3,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Calendar;
 import java.util.Date;
+import java.io.Serializable;
 
-public class Department {
+public class Department implements Serializable {
 	String code;
 	DepartmentType type;
 	HashMap<String, Employee> employees;

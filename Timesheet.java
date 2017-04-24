@@ -1,7 +1,8 @@
 import java.util.ArrayList;
 import java.util.Collections;
+import java.io.Serializable;
 
-public class Timesheet {
+public class Timesheet implements Serializable {
 
 	final long THIRTY_MINUTES = 1800000;
 	final long FOUR_HOURS = 14400000;

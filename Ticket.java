@@ -1,7 +1,8 @@
 import java.util.Calendar;
 import java.util.Date;
+import java.io.Serializable;
 
-public class Ticket implements Comparable<Ticket> {
+public class Ticket implements Comparable<Ticket>, Serializable {
 	Date datetime;
 	HourType hourType;
 	TicketType ticketType;
