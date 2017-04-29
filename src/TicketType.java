@@ -1,0 +1,3 @@
+enum TicketType {
+	ClockIn, ClockOut
+}
