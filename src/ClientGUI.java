@@ -18,12 +18,15 @@ import javax.swing.SpringLayout;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.FlowLayout;
+import java.awt.BorderLayout;
 
 public class ClientGUI implements Receiver {
 
 	private JFrame frame;
-	private JTextField txtEnterDepartmentCode;
+	private JTextField txtDepartmentCode;
 	private AcmeClient client;
+	private JPanel containerMain;
 	
 	/**
 	 * Launch the application.
@@ -63,6 +66,10 @@ public class ClientGUI implements Receiver {
 				Timesheet sheet = (Timesheet) message.objects[0];
 				System.out.println(sheet.getHoursWorked());
 				break;
+			case "!department-login":
+				System.out.printf("Success: %s\n", (String) message.objects[0]);
+				
+				break;
 			case "!success":
 				System.out.printf("Success: %s\n", (String) message.objects[0]);
 				break;
@@ -77,8 +84,9 @@ public class ClientGUI implements Receiver {
 	
 	public void didClickDepartmentLogin() {
 		try {
-			String departmentCode = txtEnterDepartmentCode.getText();
+			String departmentCode = txtDepartmentCode.getText();
 			client.login(departmentCode);
+			CardLayout layout = (CardLayout) containerMain.getLayout();
 		} catch(IOException e) {
 			System.out.println(e);
 		}
@@ -93,41 +101,45 @@ public class ClientGUI implements Receiver {
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		JPanel panel = new JPanel();
+		containerMain = new JPanel();
 		GroupLayout groupLayout = new GroupLayout(frame.getContentPane());
 		groupLayout.setHorizontalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addComponent(panel, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE)
+				.addComponent(containerMain, GroupLayout.PREFERRED_SIZE, 450, GroupLayout.PREFERRED_SIZE)
 		);
 		groupLayout.setVerticalGroup(
 			groupLayout.createParallelGroup(Alignment.LEADING)
-				.addComponent(panel, GroupLayout.PREFERRED_SIZE, 278, GroupLayout.PREFERRED_SIZE)
+				.addComponent(containerMain, GroupLayout.PREFERRED_SIZE, 278, GroupLayout.PREFERRED_SIZE)
 		);
-		SpringLayout sl_panel = new SpringLayout();
-		panel.setLayout(sl_panel);
+		containerMain.setLayout(new CardLayout(0, 0));
+		
+		JPanel panelDepartmentLogin = new JPanel();
+		containerMain.add(panelDepartmentLogin, "name_1992096590687377");
+		panelDepartmentLogin.setLayout(null);
+		
+		JPanel containerDLogin = new JPanel();
+		containerDLogin.setBounds(77, 99, 296, 80);
+		panelDepartmentLogin.add(containerDLogin);
+		containerDLogin.setLayout(new BoxLayout(containerDLogin, BoxLayout.Y_AXIS));
 		
 		JLabel lblNewLabel = new JLabel("Department");
-		sl_panel.putConstraint(SpringLayout.WEST, lblNewLabel, 188, SpringLayout.WEST, panel);
-		panel.add(lblNewLabel);
+		lblNewLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+		containerDLogin.add(lblNewLabel);
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		
-		txtEnterDepartmentCode = new JTextField();
-		sl_panel.putConstraint(SpringLayout.SOUTH, lblNewLabel, -26, SpringLayout.NORTH, txtEnterDepartmentCode);
-		sl_panel.putConstraint(SpringLayout.NORTH, txtEnterDepartmentCode, 127, SpringLayout.NORTH, panel);
-		sl_panel.putConstraint(SpringLayout.WEST, txtEnterDepartmentCode, 157, SpringLayout.WEST, panel);
-		sl_panel.putConstraint(SpringLayout.EAST, txtEnterDepartmentCode, -158, SpringLayout.EAST, panel);
-		txtEnterDepartmentCode.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(txtEnterDepartmentCode);
-		txtEnterDepartmentCode.setColumns(10);
+		txtDepartmentCode = new JTextField();
+		containerDLogin.add(txtDepartmentCode);
+		txtDepartmentCode.setHorizontalAlignment(SwingConstants.CENTER);
+		txtDepartmentCode.setColumns(10);
 		
 		JButton btnSubmit = new JButton("Submit");
+		btnSubmit.setAlignmentX(Component.CENTER_ALIGNMENT);
+		containerDLogin.add(btnSubmit);
 		btnSubmit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				didClickDepartmentLogin();
 			}
 		});
-		sl_panel.putConstraint(SpringLayout.NORTH, btnSubmit, 23, SpringLayout.SOUTH, txtEnterDepartmentCode);
-		sl_panel.putConstraint(SpringLayout.WEST, btnSubmit, 181, SpringLayout.WEST, panel);
-		panel.add(btnSubmit);
 		frame.getContentPane().setLayout(groupLayout);
 	}
 }
