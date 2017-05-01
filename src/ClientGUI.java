@@ -43,7 +43,9 @@ public class ClientGUI implements Receiver {
 	private AcmeClient client;
 	
 	private JFrame frame;
-	private JTextField txtLoginDepartmentCode;
+	
+	private JRadioButton rdbtnMainRegular;
+	private JRadioButton rdbtnMainCallback;
 	
 	private JPanel containerMain;
 	private JPanel panelDepartmentLogin;
@@ -58,6 +60,7 @@ public class ClientGUI implements Receiver {
 	
 	private JTextField txtEmployeeAddName;
 	private JTextField txtEmployeeAddCode;
+	private JTextField txtLoginDepartmentCode;
 	
 	/**
 	 * Launch the application.
@@ -126,7 +129,6 @@ public class ClientGUI implements Receiver {
 		} catch(IOException e) {
 			System.out.println(e);
 		}
-		
 	}
 	
 	private void didClickPunch() {
@@ -149,12 +151,24 @@ public class ClientGUI implements Receiver {
 		this.goTo(PANEL_MAIN);
 	}
 	
+	private void didClickAddEmployeeExit() {
+		this.goTo(PANEL_MAIN);
+	}
+	
 	private void didClickRemoveEmployee() {
 		System.out.println("Removing Employee!");
 	}
 	
 	private void didClickGoBack() {
 		this.goTo(PANEL_MAIN);
+	}
+	
+	private void didClickPunchRegular() {
+		this.rdbtnMainCallback.setSelected(false);
+	}
+	
+	private void didClickPunchCallback() {
+		this.rdbtnMainRegular.setSelected(false);
 	}
 
 	/**
@@ -231,12 +245,22 @@ public class ClientGUI implements Receiver {
 		buttonPunch.setBounds(169, 106, 82, 29);
 		panelPunchContainer.add(buttonPunch);
 		
-		JRadioButton rdbtnMainRegular = new JRadioButton("Regular");
+		rdbtnMainRegular = new JRadioButton("Regular");
+		rdbtnMainRegular.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickPunchRegular();
+			}
+		});
 		rdbtnMainRegular.setSelected(true);
 		rdbtnMainRegular.setBounds(126, 147, 82, 23);
 		panelPunchContainer.add(rdbtnMainRegular);
 		
-		JRadioButton rdbtnMainCallback = new JRadioButton("Callback");
+		rdbtnMainCallback = new JRadioButton("Callback");
+		rdbtnMainCallback.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickPunchCallback();
+			}
+		});
 		rdbtnMainCallback.setBounds(208, 147, 92, 23);
 		panelPunchContainer.add(rdbtnMainCallback);
 		
@@ -322,10 +346,17 @@ public class ClientGUI implements Receiver {
 		
 		containerAddEmployeeForm = new JPanel();
 		
-		JButton btnSubmit_1 = new JButton("Submit");
-		btnSubmit_1.addActionListener(new ActionListener() {
+		JButton btnEmployeeAddSubmit = new JButton("Submit");
+		btnEmployeeAddSubmit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				didClickAddEmployeeSubmit();
+			}
+		});
+		
+		JButton btnEmployeeAddExit = new JButton("Exit");
+		btnEmployeeAddExit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickAddEmployeeExit();
 			}
 		});
 		GroupLayout gl_panelAddEmployee = new GroupLayout(panelAddEmployee);
@@ -338,7 +369,9 @@ public class ClientGUI implements Receiver {
 							.addComponent(containerAddEmployeeForm, GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE))
 						.addGroup(gl_panelAddEmployee.createSequentialGroup()
 							.addGap(181)
-							.addComponent(btnSubmit_1)))
+							.addComponent(btnEmployeeAddSubmit)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(btnEmployeeAddExit)))
 					.addContainerGap())
 		);
 		gl_panelAddEmployee.setVerticalGroup(
@@ -347,7 +380,9 @@ public class ClientGUI implements Receiver {
 					.addGap(57)
 					.addComponent(containerAddEmployeeForm, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
-					.addComponent(btnSubmit_1)
+					.addGroup(gl_panelAddEmployee.createParallelGroup(Alignment.BASELINE)
+						.addComponent(btnEmployeeAddSubmit)
+						.addComponent(btnEmployeeAddExit))
 					.addContainerGap(108, Short.MAX_VALUE))
 		);
 		
