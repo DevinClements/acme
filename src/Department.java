@@ -29,9 +29,13 @@ public class Department implements Serializable {
 	public Employee getEmployee(String id) {
 		return employees.get(id);
 	}
+	
+	public Employee[] getAllEmployee() {
+		return employees.values().toArray(new Employee[employees.size()]);
+	}
 
-	public Employee addEmployee(String id) {
-		Employee employee = new Employee(id);
+	public Employee addEmployee(String id, String name) {
+		Employee employee = new Employee(id, name);
 		employees.put(employee.id, employee);
 		return employee;
 	}

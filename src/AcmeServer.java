@@ -65,6 +65,25 @@ public class AcmeServer extends AbstractServer {
 		client.sendToClient(new Message("!timesheet", sheet));
 		return;
 	}
+	
+	public void handleEmployeeList(Message message, ConnectionToClient client) throws IOException {
+		String departmentCode = (String) client.getInfo(CLIENT_KEY_DEPARTMENT_CODE);
+		Department department = departmentStore.get(departmentCode);
+		Employee[] emps = department.getAllEmployee();
+		for(Employee e: emps) {
+			System.out.println(e.name);
+		}
+		client.sendToClient(new Message("!employee-list", emps));
+	}
+	
+	public void handleEmployeeAdd(Message message, ConnectionToClient client) throws IOException {
+		String departmentCode = (String) client.getInfo(CLIENT_KEY_DEPARTMENT_CODE);
+		Department department = departmentStore.get(departmentCode);
+		String id = (String) message.objects[0];
+		String name = (String) message.objects[1];
+		department.addEmployee(id, name);
+		client.sendToClient(new Message("!employee-add", null));
+	}
 
 	public void handleMessageFromClient(Object msg, ConnectionToClient client) {
 		if(msg instanceof Message) {
@@ -76,6 +95,12 @@ public class AcmeServer extends AbstractServer {
 						break;
 					case "!department-create":
 						handleCreateDepartment(message, client);
+						break;
+					case "!employee-list":
+						handleEmployeeList(message, client);
+						break;
+					case "!employee-add":
+						handleEmployeeAdd(message, client);
 						break;
 					case "!punch":
 						handlePunch(message, client);
@@ -111,6 +136,7 @@ public class AcmeServer extends AbstractServer {
 	}
 
 	synchronized protected void clientException(ConnectionToClient client, Throwable exception) {
+		System.out.println(exception);
 		String msg = "Client Exception";
 		System.out.println(msg);
 	}

@@ -28,6 +28,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.AbstractListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.DefaultListModel;
+
+import java.util.ArrayList;
 
 public class ClientGUI implements Receiver {
 
@@ -60,6 +63,13 @@ public class ClientGUI implements Receiver {
 	private JTextField txtLoginDepartmentCode;
 	private JTextField txtCreateDepartmentCode;
 	private JTextField txtMainEmployeeCode;
+	
+	private JList<String> listEmployee;
+	
+	// Data Model
+	String deptCode = "";
+	DefaultListModel<String> employeeModel = new DefaultListModel<>();
+	ArrayList<Employee> employees = new ArrayList<Employee>();
 	
 	/**
 	 * Launch the application.
@@ -102,10 +112,22 @@ public class ClientGUI implements Receiver {
 			case "!department-login":
 				System.out.printf("Success: %s\n", (String) message.objects[0]);
 				this.goTo(this.PANEL_MAIN);
+				try {
+					this.client.getEmployees();
+				} catch(IOException e) {
+					System.out.println(e);
+				}
 				break;
 			case "!department-create":
 				System.out.println("Created department.");
 				this.goTo(this.PANEL_LOGIN);
+				break;
+			case "!employee-list":
+				this.refreshEmployeeList((Employee[]) message.objects);
+				break;
+			case "!employee-add":
+				this.refreshEmployeeList((Employee[]) message.objects);
+				this.goTo(PANEL_MAIN);
 				break;
 			case "!success":
 				System.out.printf("Success: %s\n", (String) message.objects[0]);
@@ -122,6 +144,15 @@ public class ClientGUI implements Receiver {
 	private void goTo(String page) {
 		CardLayout layout = (CardLayout) containerMain.getLayout();
 		layout.show(containerMain, page);
+	}
+	
+	private void refreshEmployeeList(Employee[] employees) {
+		this.employeeModel.removeAllElements();
+		this.employees.clear();
+		for(Employee employee: employees) {
+			this.employeeModel.addElement(employee.name);
+			this.employees.add(employee);
+		}
 	}
 	
 	public void didClickDepartmentLogin() {
@@ -166,7 +197,13 @@ public class ClientGUI implements Receiver {
 	}
 	
 	private void didClickAddEmployeeSubmit() {
-		this.goTo(PANEL_MAIN);
+		String id = this.txtEmployeeAddCode.getText();
+		String name = this.txtEmployeeAddName.getText();
+		try {
+			this.client.addEmployee(id, name);
+		} catch(IOException e) {
+			System.out.println(e);
+		}
 	}
 	
 	private void didClickAddEmployeeExit() {
@@ -370,17 +407,8 @@ public class ClientGUI implements Receiver {
 		panelManager = new JPanel();
 		tabbedPane.addTab("Manager", null, panelManager, null);
 		
-		JList listEmployee = new JList();
+		listEmployee = new JList<String>(this.employeeModel);
 		listEmployee.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		listEmployee.setModel(new AbstractListModel() {
-			String[] values = new String[] {"Vincent More", "Arvell Webb"};
-			public int getSize() {
-				return values.length;
-			}
-			public Object getElementAt(int index) {
-				return values[index];
-			}
-		});
 		listEmployee.setSelectedIndex(0);
 		listEmployee.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		listEmployee.setFont(new Font("Helvetica Neue", Font.PLAIN, 12));
@@ -414,8 +442,8 @@ public class ClientGUI implements Receiver {
 		});
 		GroupLayout gl_panelManager = new GroupLayout(panelManager);
 		gl_panelManager.setHorizontalGroup(
-			gl_panelManager.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_panelManager.createSequentialGroup()
+			gl_panelManager.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panelManager.createSequentialGroup()
 					.addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					.addComponent(btnEmployeeAdd)
 					.addGap(38)
@@ -425,14 +453,14 @@ public class ClientGUI implements Receiver {
 					.addGap(18)
 					.addComponent(btnEmployeeSummary)
 					.addContainerGap())
-				.addComponent(listEmployee, GroupLayout.DEFAULT_SIZE, 429, Short.MAX_VALUE)
+				.addComponent(listEmployee, GroupLayout.DEFAULT_SIZE, 435, Short.MAX_VALUE)
 		);
 		gl_panelManager.setVerticalGroup(
-			gl_panelManager.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_panelManager.createSequentialGroup()
+			gl_panelManager.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panelManager.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(listEmployee, GroupLayout.DEFAULT_SIZE, 173, Short.MAX_VALUE)
-					.addGap(18)
+					.addComponent(listEmployee, GroupLayout.DEFAULT_SIZE, 179, Short.MAX_VALUE)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_panelManager.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panelManager.createParallelGroup(Alignment.BASELINE)
 							.addComponent(btnEmployeeAdd)

@@ -5,7 +5,7 @@ public class Driver {
 	static Department dept = new Department("123", DepartmentType.Production);
 	
 	public static void main(String[] args) {
-		dept.addEmployee("123");
+		dept.addEmployee("123", "Vincent Moore");
 		
 		// Set hours
 		dept.punch("123", HourType.Vacation, 1, 8, 0);

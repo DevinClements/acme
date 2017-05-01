@@ -5,6 +5,8 @@ public class AcmeClient extends AbstractClient {
 
 	final private String COMMAND_DEPARTMENT_LOGIN = "!department-login";
 	final private String COMMAND_DEPARTMENT_CREATE = "!department-create";
+	final private String COMMAND_DEPARTMENT_EMPLOYEE_LIST = "!employee-list";
+	final private String COMMAND_DEPARTMENT_EMPLOYEE_ADD = "!employee-add";
 	final private String COMMAND_EMPLOYEE_PUNCH = "!punch";
 	final private String COMMAND_EMPLOYEE_TIMESHEET = "!timesheet";
 	
@@ -33,6 +35,17 @@ public class AcmeClient extends AbstractClient {
 	public void createDepartment(String code, DepartmentType type) throws IOException {
 		Object[] objectsToSend = new Object[]{code, type};
 		this.sendToServer(new Message(COMMAND_DEPARTMENT_CREATE, objectsToSend));
+		return;
+	}
+	
+	public void getEmployees() throws IOException {
+		this.sendToServer(new Message(COMMAND_DEPARTMENT_EMPLOYEE_LIST, ""));
+		return;
+	}
+	
+	public void addEmployee(String id, String name) throws IOException {
+		Object[] objectsToSend = new Object[]{id, name};
+		this.sendToServer(new Message(COMMAND_DEPARTMENT_EMPLOYEE_ADD, objectsToSend));
 		return;
 	}
 	
