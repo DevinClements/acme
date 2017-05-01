@@ -128,6 +128,8 @@ public class ClientGUI implements Receiver {
 			case "!employee-add":
 				try {
 					this.client.getEmployees();
+					this.txtEmployeeAddCode.setText("");
+					this.txtEmployeeAddName.setText("");
 				} catch(IOException e) {
 					System.out.println(e);
 				}
