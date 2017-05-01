@@ -669,11 +669,11 @@ public class ClientGUI implements Receiver {
 		gl_panelCreateDepartment.setVerticalGroup(
 			gl_panelCreateDepartment.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelCreateDepartment.createSequentialGroup()
-					.addGap(37)
+					.addGap(43)
 					.addGroup(gl_panelCreateDepartment.createParallelGroup(Alignment.BASELINE)
 						.addComponent(txtCreateDepartmentCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
 						.addComponent(lblCreateDepartmentCode))
-					.addGap(18)
+					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addGroup(gl_panelCreateDepartment.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblCreateDepartmentType)
 						.addComponent(rdbtnCreateDepartmentProduction))
