@@ -35,6 +35,7 @@ public class ClientGUI implements Receiver {
 	private final String PANEL_MAIN = "main";
 	private final String PANEL_ADD_EMPLOYEE = "employee_add";
 	private final String PANEL_SUMMARY_EMPLOYEE = "employee_summary";
+	private final String PANEL_CREATE = "create";
 	
 	private AcmeClient client;
 	
@@ -42,10 +43,11 @@ public class ClientGUI implements Receiver {
 	
 	private JRadioButton rdbtnMainRegular;
 	private JRadioButton rdbtnMainCallback;
+	private JRadioButton rdbtnCreateDepartmentProduction;
+	private JRadioButton rdbtnCreateDepartmentIndirectProduction;
 	
 	private JPanel containerMain;
 	private JPanel panelDepartmentLogin;
-	private JPanel containerDLogin;
 	private JPanel panelMain;
 	private JPanel panelPunch;
 	private JPanel panelPunchContainer;
@@ -57,6 +59,7 @@ public class ClientGUI implements Receiver {
 	private JTextField txtEmployeeAddName;
 	private JTextField txtEmployeeAddCode;
 	private JTextField txtLoginDepartmentCode;
+	private JTextField txtCreateDepartmentCode;
 	
 	/**
 	 * Launch the application.
@@ -159,6 +162,22 @@ public class ClientGUI implements Receiver {
 		this.goTo(PANEL_MAIN);
 	}
 	
+	private void didClickDepartmentCreateSubmit() {
+		this.goTo(PANEL_MAIN);
+	}
+	
+	private void didClickDepartmentCreateCancel() {
+		this.goTo(PANEL_LOGIN);
+	}
+	
+	private void didClickDepartmentCreateProduction() {
+		this.rdbtnCreateDepartmentIndirectProduction.setSelected(false);
+	}
+	
+	private void didClickDepartmentCreateIndirect() {
+		this.rdbtnCreateDepartmentProduction.setSelected(false);
+	}
+	
 	private void didClickPunchRegular() {
 		this.rdbtnMainCallback.setSelected(false);
 	}
@@ -167,6 +186,9 @@ public class ClientGUI implements Receiver {
 		this.rdbtnMainRegular.setSelected(false);
 	}
 
+	private void didClickLoginCreate() {
+		this.goTo(PANEL_CREATE);
+	}
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -189,26 +211,62 @@ public class ClientGUI implements Receiver {
 		
 		panelDepartmentLogin = new JPanel();
 		containerMain.add(panelDepartmentLogin, PANEL_LOGIN);
-		panelDepartmentLogin.setLayout(null);
-		
-		containerDLogin = new JPanel();
-		containerDLogin.setBounds(77, 99, 296, 80);
-		panelDepartmentLogin.add(containerDLogin);
-		containerDLogin.setLayout(new BoxLayout(containerDLogin, BoxLayout.Y_AXIS));
 		
 		JLabel lblLoginDepartment = new JLabel("Department");
 		lblLoginDepartment.setAlignmentX(Component.CENTER_ALIGNMENT);
-		containerDLogin.add(lblLoginDepartment);
 		lblLoginDepartment.setHorizontalAlignment(SwingConstants.CENTER);
 		
 		txtLoginDepartmentCode = new JTextField();
-		containerDLogin.add(txtLoginDepartmentCode);
 		txtLoginDepartmentCode.setHorizontalAlignment(SwingConstants.CENTER);
 		txtLoginDepartmentCode.setColumns(10);
 		
 		JButton btnLoginSubmit = new JButton("Submit");
 		btnLoginSubmit.setAlignmentX(Component.CENTER_ALIGNMENT);
-		containerDLogin.add(btnLoginSubmit);
+		
+		JButton btnLoginCreate = new JButton("Create");
+		btnLoginCreate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickLoginCreate();
+			}
+		});
+		btnLoginCreate.setAlignmentX(0.5f);
+		GroupLayout gl_panelDepartmentLogin = new GroupLayout(panelDepartmentLogin);
+		gl_panelDepartmentLogin.setHorizontalGroup(
+			gl_panelDepartmentLogin.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panelDepartmentLogin.createSequentialGroup()
+					.addContainerGap(100, Short.MAX_VALUE)
+					.addGroup(gl_panelDepartmentLogin.createParallelGroup(Alignment.LEADING)
+						.addGroup(Alignment.TRAILING, gl_panelDepartmentLogin.createSequentialGroup()
+							.addComponent(lblLoginDepartment)
+							.addGap(184))
+						.addGroup(Alignment.TRAILING, gl_panelDepartmentLogin.createSequentialGroup()
+							.addComponent(txtLoginDepartmentCode, GroupLayout.PREFERRED_SIZE, 296, GroupLayout.PREFERRED_SIZE)
+							.addGap(54))
+						.addGroup(Alignment.TRAILING, gl_panelDepartmentLogin.createSequentialGroup()
+							.addComponent(btnLoginSubmit)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(btnLoginCreate, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
+							.addGap(124))))
+		);
+		gl_panelDepartmentLogin.setVerticalGroup(
+			gl_panelDepartmentLogin.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panelDepartmentLogin.createSequentialGroup()
+					.addGap(76)
+					.addComponent(lblLoginDepartment)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(txtLoginDepartmentCode, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panelDepartmentLogin.createParallelGroup(Alignment.BASELINE)
+						.addComponent(btnLoginSubmit)
+						.addComponent(btnLoginCreate))
+					.addContainerGap(110, Short.MAX_VALUE))
+		);
+		panelDepartmentLogin.setLayout(gl_panelDepartmentLogin);
+		btnLoginSubmit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickDepartmentLogin();
+			}
+		});
 		
 		panelMain = new JPanel();
 		containerMain.add(panelMain, PANEL_MAIN);
@@ -512,11 +570,88 @@ public class ClientGUI implements Receiver {
 					.addGap(47))
 		);
 		panelEmployeeSummary.setLayout(gl_panelEmployeeSummary);
-		btnLoginSubmit.addActionListener(new ActionListener() {
+		
+		JPanel panelCreateDepartment = new JPanel();
+		containerMain.add(panelCreateDepartment, this.PANEL_CREATE);
+		
+		txtCreateDepartmentCode = new JTextField();
+		txtCreateDepartmentCode.setColumns(10);
+		
+		JLabel lblCreateDepartmentCode = new JLabel("Code:");
+		lblCreateDepartmentCode.setLabelFor(txtCreateDepartmentCode);
+		
+		JLabel lblCreateDepartmentType = new JLabel("Type:");
+		
+		rdbtnCreateDepartmentProduction = new JRadioButton("Production");
+		rdbtnCreateDepartmentProduction.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				didClickDepartmentLogin();
+				didClickDepartmentCreateProduction();
 			}
 		});
+		rdbtnCreateDepartmentProduction.setSelected(true);
+		
+		rdbtnCreateDepartmentIndirectProduction = new JRadioButton("Indirect Production");
+		rdbtnCreateDepartmentIndirectProduction.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickDepartmentCreateIndirect();
+			}
+		});
+		
+		JButton btnDepartmentCreateSubmit = new JButton("Submit");
+		btnDepartmentCreateSubmit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickDepartmentCreateSubmit();
+			}
+		});
+		
+		JButton btnDepartmentCreateCancel = new JButton("Cancel");
+		btnDepartmentCreateCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickDepartmentCreateCancel();
+			}
+		});
+		GroupLayout gl_panelCreateDepartment = new GroupLayout(panelCreateDepartment);
+		gl_panelCreateDepartment.setHorizontalGroup(
+			gl_panelCreateDepartment.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panelCreateDepartment.createSequentialGroup()
+					.addGap(49)
+					.addGroup(gl_panelCreateDepartment.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_panelCreateDepartment.createSequentialGroup()
+							.addComponent(lblCreateDepartmentCode)
+							.addGap(18)
+							.addComponent(txtCreateDepartmentCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_panelCreateDepartment.createSequentialGroup()
+							.addComponent(lblCreateDepartmentType, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+							.addGap(18)
+							.addGroup(gl_panelCreateDepartment.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(rdbtnCreateDepartmentProduction, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(rdbtnCreateDepartmentIndirectProduction, GroupLayout.DEFAULT_SIZE, 161, Short.MAX_VALUE)
+								.addGroup(gl_panelCreateDepartment.createSequentialGroup()
+									.addComponent(btnDepartmentCreateSubmit)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnDepartmentCreateCancel, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)))))
+					.addContainerGap(165, Short.MAX_VALUE))
+		);
+		gl_panelCreateDepartment.setVerticalGroup(
+			gl_panelCreateDepartment.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panelCreateDepartment.createSequentialGroup()
+					.addGap(37)
+					.addGroup(gl_panelCreateDepartment.createParallelGroup(Alignment.BASELINE)
+						.addComponent(txtCreateDepartmentCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblCreateDepartmentCode))
+					.addGap(18)
+					.addGroup(gl_panelCreateDepartment.createParallelGroup(Alignment.BASELINE)
+						.addComponent(lblCreateDepartmentType)
+						.addComponent(rdbtnCreateDepartmentProduction))
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(rdbtnCreateDepartmentIndirectProduction)
+					.addGap(18)
+					.addGroup(gl_panelCreateDepartment.createParallelGroup(Alignment.BASELINE)
+						.addComponent(btnDepartmentCreateSubmit)
+						.addComponent(btnDepartmentCreateCancel))
+					.addContainerGap(96, Short.MAX_VALUE))
+		);
+		panelCreateDepartment.setLayout(gl_panelCreateDepartment);
 		frame.getContentPane().setLayout(groupLayout);
 	}
 }
