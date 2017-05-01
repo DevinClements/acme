@@ -14,7 +14,6 @@ public class AcmeServer extends AbstractServer {
 	}
 
 	public void handleDepartmentLogin(Message message, ConnectionToClient client) throws IOException {
-		System.out.println("we are trying to log in.");
 		String code = (String) message.objects[0];
 		System.out.println(code);
 		if(departmentStore.containsKey(code)){
@@ -82,7 +81,16 @@ public class AcmeServer extends AbstractServer {
 		String id = (String) message.objects[0];
 		String name = (String) message.objects[1];
 		department.addEmployee(id, name);
-		client.sendToClient(new Message("!employee-add", null));
+		client.sendToClient(new Message("!employee-add", ""));
+	}
+	
+	public void handleEmployeeRemove(Message message, ConnectionToClient client) throws IOException {
+		String departmentCode = (String) client.getInfo(CLIENT_KEY_DEPARTMENT_CODE);
+		Department department = departmentStore.get(departmentCode);
+		String id = (String) message.objects[0];
+		Employee emp = department.removeEmployee(id);
+		System.out.printf("We removed %s\n", emp.name);
+		client.sendToClient(new Message("!employee-remove", ""));
 	}
 
 	public void handleMessageFromClient(Object msg, ConnectionToClient client) {
@@ -101,6 +109,9 @@ public class AcmeServer extends AbstractServer {
 						break;
 					case "!employee-add":
 						handleEmployeeAdd(message, client);
+						break;
+					case "!employee-remove":
+						handleEmployeeRemove(message, client);
 						break;
 					case "!punch":
 						handlePunch(message, client);

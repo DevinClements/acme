@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.io.Serializable;
+import java.util.Iterator;
 
 public class Department implements Serializable {
 	/**
@@ -38,6 +39,21 @@ public class Department implements Serializable {
 		Employee employee = new Employee(id, name);
 		employees.put(employee.id, employee);
 		return employee;
+	}
+	
+	public Employee removeEmployee(String id) {
+		Employee removedEmployee = employees.remove(id);
+		for(String key: tickets.keySet()) {
+			ArrayList<Ticket> ticketsForDate = tickets.get(key);
+			Iterator<Ticket> iterator = ticketsForDate.iterator();
+			while(iterator.hasNext()) {
+				Ticket ticket = iterator.next();
+				if(ticket.employeeId.equals(removedEmployee.id)) {
+					iterator.remove();
+				}
+			}
+		}
+		return removedEmployee;
 	}
 
 

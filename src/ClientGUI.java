@@ -126,8 +126,19 @@ public class ClientGUI implements Receiver {
 				this.refreshEmployeeList((Employee[]) message.objects);
 				break;
 			case "!employee-add":
-				this.refreshEmployeeList((Employee[]) message.objects);
+				try {
+					this.client.getEmployees();
+				} catch(IOException e) {
+					System.out.println(e);
+				}
 				this.goTo(PANEL_MAIN);
+				break;
+			case "!employee-remove":
+				try {
+					this.client.getEmployees();
+				} catch(IOException e) {
+					System.out.println(e);
+				}
 				break;
 			case "!success":
 				System.out.printf("Success: %s\n", (String) message.objects[0]);
@@ -211,7 +222,13 @@ public class ClientGUI implements Receiver {
 	}
 	
 	private void didClickRemoveEmployee() {
-		System.out.println("Removing Employee!");
+		int index = listEmployee.getSelectedIndex();
+		Employee employeeToRemove = employees.get(index);
+		try {
+			this.client.removeEmployee(employeeToRemove.id);
+		} catch(IOException e) {
+			System.out.println(e);
+		}
 	}
 	
 	private void didClickGoBack() {
