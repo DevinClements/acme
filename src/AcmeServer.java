@@ -19,7 +19,7 @@ public class AcmeServer extends AbstractServer {
 		System.out.println(code);
 		if(departmentStore.containsKey(code)){
 			client.setInfo(CLIENT_KEY_DEPARTMENT_CODE, code);
-			client.sendToClient(new Message("!success", "Successfully logged into department."));
+			client.sendToClient(new Message("!department-login", "Successfully logged into department."));
 			return;
 		}
 		client.sendToClient(new Message("!error", "Could not log into deparment."));
@@ -31,7 +31,7 @@ public class AcmeServer extends AbstractServer {
 		DepartmentType type = (DepartmentType) message.objects[1];
 		if(!departmentStore.containsKey(code)) {
 			departmentStore.put(code, new Department(code, type));
-			client.sendToClient(new Message("!success", "Successfully created department."));
+			client.sendToClient(new Message("!department-create", "Successfully created department."));
 			return;
 		}
 		client.sendToClient(new Message("!error", "Department already exists."));

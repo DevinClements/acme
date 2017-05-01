@@ -101,7 +101,11 @@ public class ClientGUI implements Receiver {
 				break;
 			case "!department-login":
 				System.out.printf("Success: %s\n", (String) message.objects[0]);
-				
+				this.goTo(this.PANEL_MAIN);
+				break;
+			case "!department-create":
+				System.out.println("Created department.");
+				this.goTo(this.PANEL_LOGIN);
 				break;
 			case "!success":
 				System.out.printf("Success: %s\n", (String) message.objects[0]);
@@ -121,10 +125,25 @@ public class ClientGUI implements Receiver {
 	}
 	
 	public void didClickDepartmentLogin() {
-		this.goTo(this.PANEL_MAIN);
 		try {
 			String departmentCode = txtLoginDepartmentCode.getText();
 			client.login(departmentCode);
+		} catch(IOException e) {
+			System.out.println(e);
+		}
+	}
+	
+	private void didClickDepartmentCreateSubmit() {
+		try {
+			String departmentCode = this.txtCreateDepartmentCode.getText();
+			DepartmentType type = null;
+			if(this.rdbtnCreateDepartmentProduction.isSelected()) {
+				type = DepartmentType.Production;
+			}
+			if(this.rdbtnCreateDepartmentIndirectProduction.isSelected()) {
+				type = DepartmentType.IndirectProduction;
+			}
+			client.createDepartment(departmentCode, type);
 		} catch(IOException e) {
 			System.out.println(e);
 		}
@@ -159,10 +178,6 @@ public class ClientGUI implements Receiver {
 	}
 	
 	private void didClickGoBack() {
-		this.goTo(PANEL_MAIN);
-	}
-	
-	private void didClickDepartmentCreateSubmit() {
 		this.goTo(PANEL_MAIN);
 	}
 	
