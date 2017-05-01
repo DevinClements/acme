@@ -50,7 +50,6 @@ public class ClientGUI implements Receiver {
 	private JPanel panelDepartmentLogin;
 	private JPanel panelMain;
 	private JPanel panelPunch;
-	private JPanel panelPunchContainer;
 	private JPanel panelManager;
 	private JPanel panelAddEmployee;
 	private JPanel panelEmployeeSummary;
@@ -60,6 +59,7 @@ public class ClientGUI implements Receiver {
 	private JTextField txtEmployeeAddCode;
 	private JTextField txtLoginDepartmentCode;
 	private JTextField txtCreateDepartmentCode;
+	private JTextField txtMainEmployeeCode;
 	
 	/**
 	 * Launch the application.
@@ -240,13 +240,14 @@ public class ClientGUI implements Receiver {
 							.addComponent(lblLoginDepartment)
 							.addGap(184))
 						.addGroup(Alignment.TRAILING, gl_panelDepartmentLogin.createSequentialGroup()
-							.addComponent(txtLoginDepartmentCode, GroupLayout.PREFERRED_SIZE, 296, GroupLayout.PREFERRED_SIZE)
-							.addGap(54))
-						.addGroup(Alignment.TRAILING, gl_panelDepartmentLogin.createSequentialGroup()
-							.addComponent(btnLoginSubmit)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnLoginCreate, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
-							.addGap(124))))
+							.addGroup(gl_panelDepartmentLogin.createParallelGroup(Alignment.LEADING)
+								.addComponent(txtLoginDepartmentCode, GroupLayout.PREFERRED_SIZE, 181, GroupLayout.PREFERRED_SIZE)
+								.addGroup(gl_panelDepartmentLogin.createSequentialGroup()
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnLoginSubmit)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addComponent(btnLoginCreate, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)))
+							.addGap(130))))
 		);
 		gl_panelDepartmentLogin.setVerticalGroup(
 			gl_panelDepartmentLogin.createParallelGroup(Alignment.LEADING)
@@ -278,26 +279,8 @@ public class ClientGUI implements Receiver {
 		panelPunch = new JPanel();
 		panelPunch.setBackground(UIManager.getColor("Button.background"));
 		tabbedPane.addTab("Employee", null, panelPunch, null);
-		panelPunch.setLayout(new BoxLayout(panelPunch, BoxLayout.X_AXIS));
-		
-		panelPunchContainer = new JPanel();
-		panelPunch.add(panelPunchContainer);
-		panelPunchContainer.setLayout(null);
-		
-		JLabel labelPunchTime = new JLabel("00:00 PM");
-		labelPunchTime.setBounds(169, 68, 92, 26);
-		labelPunchTime.setHorizontalAlignment(SwingConstants.CENTER);
-		labelPunchTime.setFont(new Font("Helvetica Neue", Font.PLAIN, 21));
-		panelPunchContainer.add(labelPunchTime);
 		
 		JButton buttonPunch = new JButton("Punch");
-		buttonPunch.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				didClickPunch();
-			}
-		});
-		buttonPunch.setBounds(169, 106, 82, 29);
-		panelPunchContainer.add(buttonPunch);
 		
 		rdbtnMainRegular = new JRadioButton("Regular");
 		rdbtnMainRegular.addActionListener(new ActionListener() {
@@ -306,17 +289,68 @@ public class ClientGUI implements Receiver {
 			}
 		});
 		rdbtnMainRegular.setSelected(true);
-		rdbtnMainRegular.setBounds(126, 147, 82, 23);
-		panelPunchContainer.add(rdbtnMainRegular);
+		
+		JLabel labelPunchTime = new JLabel("00:00 PM");
+		labelPunchTime.setHorizontalAlignment(SwingConstants.CENTER);
+		labelPunchTime.setFont(new Font("Helvetica Neue", Font.PLAIN, 21));
 		
 		rdbtnMainCallback = new JRadioButton("Callback");
+		
+		txtMainEmployeeCode = new JTextField();
+		txtMainEmployeeCode.setColumns(10);
+		
+		JLabel lblCode = new JLabel("Emp. Code:");
+		lblCode.setLabelFor(txtMainEmployeeCode);
+		GroupLayout gl_panelPunch = new GroupLayout(panelPunch);
+		gl_panelPunch.setHorizontalGroup(
+			gl_panelPunch.createParallelGroup(Alignment.TRAILING)
+				.addGroup(Alignment.LEADING, gl_panelPunch.createSequentialGroup()
+					.addGap(35)
+					.addGroup(gl_panelPunch.createParallelGroup(Alignment.TRAILING, false)
+						.addComponent(buttonPunch, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addGroup(Alignment.LEADING, gl_panelPunch.createSequentialGroup()
+							.addGroup(gl_panelPunch.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(lblCode, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(rdbtnMainRegular, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_panelPunch.createParallelGroup(Alignment.LEADING)
+								.addComponent(txtMainEmployeeCode, 0, 0, Short.MAX_VALUE)
+								.addComponent(rdbtnMainCallback))))
+					.addPreferredGap(ComponentPlacement.RELATED, 67, Short.MAX_VALUE)
+					.addComponent(labelPunchTime, GroupLayout.PREFERRED_SIZE, 109, GroupLayout.PREFERRED_SIZE)
+					.addGap(53))
+		);
+		gl_panelPunch.setVerticalGroup(
+			gl_panelPunch.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panelPunch.createSequentialGroup()
+					.addGroup(gl_panelPunch.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_panelPunch.createSequentialGroup()
+							.addGap(50)
+							.addGroup(gl_panelPunch.createParallelGroup(Alignment.BASELINE)
+								.addComponent(txtMainEmployeeCode, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblCode, GroupLayout.PREFERRED_SIZE, 28, GroupLayout.PREFERRED_SIZE))
+							.addGap(18)
+							.addGroup(gl_panelPunch.createParallelGroup(Alignment.BASELINE)
+								.addComponent(rdbtnMainRegular)
+								.addComponent(rdbtnMainCallback))
+							.addGap(18)
+							.addComponent(buttonPunch, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE))
+						.addGroup(gl_panelPunch.createSequentialGroup()
+							.addGap(84)
+							.addComponent(labelPunchTime, GroupLayout.PREFERRED_SIZE, 38, GroupLayout.PREFERRED_SIZE)))
+					.addContainerGap(56, Short.MAX_VALUE))
+		);
+		panelPunch.setLayout(gl_panelPunch);
 		rdbtnMainCallback.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				didClickPunchCallback();
 			}
 		});
-		rdbtnMainCallback.setBounds(208, 147, 92, 23);
-		panelPunchContainer.add(rdbtnMainCallback);
+		buttonPunch.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickPunch();
+			}
+		});
 		
 		panelManager = new JPanel();
 		tabbedPane.addTab("Manager", null, panelManager, null);
