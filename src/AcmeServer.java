@@ -47,7 +47,7 @@ public class AcmeServer extends AbstractServer {
 		String employeeId = (String) message.objects[0];
 		HourType hourType = (HourType) message.objects[1];
 		department.punch(employeeId, hourType);
-		client.sendToClient(new Message("!success", null));
+		client.sendToClient(new Message("!punch", ""));
 		return;
 	}
 

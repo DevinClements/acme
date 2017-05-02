@@ -104,6 +104,7 @@ public class ClientGUI implements Receiver {
 		switch(message.command) {
 			case "!punch":
 				System.out.printf("We punched the timeclock.\n");
+				this.txtMainEmployeeCode.setText("");
 				break;
 			case "!timesheet":
 				Timesheet sheet = (Timesheet) message.objects[0];
@@ -194,7 +195,22 @@ public class ClientGUI implements Receiver {
 	}
 	
 	private void didClickPunch() {
-		System.out.println("One Puuuuununnnnnch!!!!");
+		if(this.txtMainEmployeeCode.getText().isEmpty()) {
+			return;
+		}
+		String id = this.txtMainEmployeeCode.getText();
+		HourType type = null;
+		if(this.rdbtnMainRegular.isSelected()) {
+			type = HourType.Regular;
+		}
+		if(this.rdbtnMainCallback.isSelected()) {
+			type = HourType.Callback;
+		}
+		try {
+			this.client.punch(id, type);
+		} catch(IOException e) {
+			System.out.println(e);
+		}
 	}
 	
 	private void didClickAddEmployee() {
