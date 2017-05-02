@@ -31,6 +31,8 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.DefaultListModel;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class ClientGUI implements Receiver {
 
@@ -63,6 +65,14 @@ public class ClientGUI implements Receiver {
 	private JTextField txtLoginDepartmentCode;
 	private JTextField txtCreateDepartmentCode;
 	private JTextField txtMainEmployeeCode;
+	private JTextField txtEmployeeSummaryFrom;
+	private JTextField txtEmployeeSummaryTo;
+	
+	private JLabel lblEmployeeSummaryNameResult;
+	private JLabel lblEmployeeSummaryIdResult;
+	private JLabel lblEmployeeSummaryStartedResult;
+	private JLabel lblEmployeeSummaryTotalHoursResult;
+	private JLabel lblEmployeeSummaryTotalPayResult;
 	
 	private JList<String> listEmployee;
 	
@@ -108,7 +118,15 @@ public class ClientGUI implements Receiver {
 				break;
 			case "!timesheet":
 				Timesheet sheet = (Timesheet) message.objects[0];
-				System.out.println(sheet.getHoursWorked());
+				String code = this.txtMainEmployeeCode.getText();
+				for(Employee emp : this.employees) {
+					if(emp.id.equals(code)) {
+						this.lblEmployeeSummaryNameResult.setText(emp.name);
+						this.lblEmployeeSummaryIdResult.setText(emp.id);
+						this.lblEmployeeSummaryTotalHoursResult.setText("" + sheet.getHoursWorked());
+						this.lblEmployeeSummaryTotalPayResult.setText("" + sheet.getHoursPaid());
+					}
+				}
 				break;
 			case "!department-login":
 				System.out.printf("Success: %s\n", (String) message.objects[0]);
@@ -239,6 +257,37 @@ public class ClientGUI implements Receiver {
 		this.goTo(PANEL_MAIN);
 	}
 	
+	private void didClickEmployeeSummaryCalculate() {
+		String fromText = this.txtEmployeeSummaryFrom.getText();
+		String toText = this.txtEmployeeSummaryTo.getText();
+		String[] fromTextDelimited = fromText.split("-");
+		String[] toTextDelimited = toText.split("-");
+		
+		int fromMonth = Integer.parseInt(fromTextDelimited[0]);
+		int fromDay = Integer.parseInt(fromTextDelimited[1]);
+		int fromYear = Integer.parseInt(fromTextDelimited[2]);
+		
+		int toMonth = Integer.parseInt(toTextDelimited[0]);
+		int toDay = Integer.parseInt(toTextDelimited[1]);
+		int toYear = Integer.parseInt(toTextDelimited[2]);
+		
+		Calendar calendarFrom = Calendar.getInstance();
+		Calendar calendarTo = Calendar.getInstance();
+		
+		calendarFrom.set(fromYear, fromMonth, fromDay);
+		calendarTo.set(toYear, toMonth, toDay);
+		
+		int index = this.listEmployee.getSelectedIndex();
+		Employee emp = this.employees.get(index);
+		
+		try {
+			Date[] dates = new Date[]{calendarFrom.getTime(), calendarTo.getTime()};
+			this.client.getTimesheet(emp.id, dates);
+		} catch(IOException e) {
+			System.out.println(e);
+		}
+	}
+	
 	private void didClickRemoveEmployee() {
 		int index = listEmployee.getSelectedIndex();
 		Employee employeeToRemove = employees.get(index);
@@ -251,6 +300,11 @@ public class ClientGUI implements Receiver {
 	
 	private void didClickGoBack() {
 		this.goTo(PANEL_MAIN);
+		this.lblEmployeeSummaryIdResult.setText("");
+		this.lblEmployeeSummaryNameResult.setText("");
+		this.lblEmployeeSummaryStartedResult.setText("");
+		this.lblEmployeeSummaryTotalHoursResult.setText("");
+		this.lblEmployeeSummaryTotalPayResult.setText("");
 	}
 	
 	private void didClickDepartmentCreateCancel() {
@@ -610,19 +664,19 @@ public class ClientGUI implements Receiver {
 		
 		JLabel lblEmployeeSummaryTotalPay = new JLabel("Total Pay:");
 		
-		JLabel lblEmployeeSummaryNameResult = new JLabel("");
+		lblEmployeeSummaryNameResult = new JLabel("......");
 		lblEmployeeSummaryNameResult.setLabelFor(lblEmployeeSummaryName);
 		
-		JLabel lblEmployeeSummaryIdResult = new JLabel("");
+		lblEmployeeSummaryIdResult = new JLabel("......");
 		lblEmployeeSummaryIdResult.setLabelFor(lblEmployeeSummaryId);
 		
-		JLabel lblEmployeeSummaryStartedResult = new JLabel("");
+		lblEmployeeSummaryStartedResult = new JLabel("......");
 		lblEmployeeSummaryStartedResult.setLabelFor(lblEmployeeSummaryStarted);
 		
-		JLabel lblEmployeeSummaryTotalHoursResult = new JLabel("");
+		lblEmployeeSummaryTotalHoursResult = new JLabel("......");
 		lblEmployeeSummaryTotalHoursResult.setLabelFor(lblEmployeeSummaryTotalHours);
 		
-		JLabel lblEmployeeSummaryTotalPayResult = new JLabel("");
+		lblEmployeeSummaryTotalPayResult = new JLabel("......");
 		lblEmployeeSummaryTotalPayResult.setLabelFor(lblEmployeeSummaryTotalPay);
 		
 		JButton btnGoBack = new JButton("Go Back");
@@ -631,55 +685,102 @@ public class ClientGUI implements Receiver {
 				didClickGoBack();
 			}
 		});
+		
+		JLabel lblEmployeeSummaryFrom = new JLabel("From:");
+		
+		JLabel lblEmployeeSummaryTo = new JLabel("To:");
+		
+		txtEmployeeSummaryFrom = new JTextField();
+		txtEmployeeSummaryFrom.setColumns(10);
+		
+		txtEmployeeSummaryTo = new JTextField();
+		txtEmployeeSummaryTo.setColumns(10);
+		
+		JButton btnCalculate = new JButton("Calculate");
+		btnCalculate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickEmployeeSummaryCalculate();
+			}
+		});
 		GroupLayout gl_panelEmployeeSummary = new GroupLayout(panelEmployeeSummary);
 		gl_panelEmployeeSummary.setHorizontalGroup(
 			gl_panelEmployeeSummary.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
-					.addGap(76)
-					.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.TRAILING)
-						.addComponent(btnGoBack)
+					.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
+							.addGap(26)
 							.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.LEADING, false)
 								.addComponent(lblEmployeeSummaryTotalHours, GroupLayout.DEFAULT_SIZE, 88, Short.MAX_VALUE)
 								.addComponent(lblEmployeeSummaryTotalPay, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(lblEmployeeSummaryStarted, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(lblEmployeeSummaryId, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-								.addComponent(lblEmployeeSummaryName, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+								.addComponent(lblEmployeeSummaryName))
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.LEADING)
-								.addComponent(lblEmployeeSummaryNameResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
-								.addComponent(lblEmployeeSummaryIdResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
-								.addComponent(lblEmployeeSummaryStartedResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
-								.addComponent(lblEmployeeSummaryTotalHoursResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
-								.addComponent(lblEmployeeSummaryTotalPayResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE))))
-					.addContainerGap(192, Short.MAX_VALUE))
+								.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
+									.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.LEADING)
+										.addComponent(lblEmployeeSummaryNameResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblEmployeeSummaryIdResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblEmployeeSummaryStartedResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE))
+									.addGap(18)
+									.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.LEADING)
+										.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
+											.addComponent(lblEmployeeSummaryFrom)
+											.addPreferredGap(ComponentPlacement.RELATED)
+											.addComponent(txtEmployeeSummaryFrom, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+										.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
+											.addComponent(lblEmployeeSummaryTo, GroupLayout.PREFERRED_SIZE, 36, GroupLayout.PREFERRED_SIZE)
+											.addPreferredGap(ComponentPlacement.RELATED)
+											.addComponent(txtEmployeeSummaryTo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))))
+								.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
+									.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.LEADING)
+										.addComponent(lblEmployeeSummaryTotalHoursResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE)
+										.addComponent(lblEmployeeSummaryTotalPayResult, GroupLayout.PREFERRED_SIZE, 88, GroupLayout.PREFERRED_SIZE))
+									.addPreferredGap(ComponentPlacement.UNRELATED)
+									.addComponent(btnCalculate))))
+						.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
+							.addGap(178)
+							.addComponent(btnGoBack)))
+					.addContainerGap(48, Short.MAX_VALUE))
 		);
 		gl_panelEmployeeSummary.setVerticalGroup(
 			gl_panelEmployeeSummary.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
-					.addGap(44)
-					.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblEmployeeSummaryName)
-						.addComponent(lblEmployeeSummaryNameResult))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblEmployeeSummaryId)
-						.addComponent(lblEmployeeSummaryIdResult))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblEmployeeSummaryStarted)
-						.addComponent(lblEmployeeSummaryStartedResult))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblEmployeeSummaryTotalHours)
-						.addComponent(lblEmployeeSummaryTotalHoursResult))
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
-						.addComponent(lblEmployeeSummaryTotalPay)
-						.addComponent(lblEmployeeSummaryTotalPayResult))
-					.addPreferredGap(ComponentPlacement.RELATED, 54, Short.MAX_VALUE)
+					.addGap(31)
+					.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
+							.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblEmployeeSummaryName)
+								.addComponent(lblEmployeeSummaryNameResult))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblEmployeeSummaryId)
+								.addComponent(lblEmployeeSummaryIdResult))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblEmployeeSummaryStarted)
+								.addComponent(lblEmployeeSummaryStartedResult))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblEmployeeSummaryTotalHours)
+								.addComponent(lblEmployeeSummaryTotalHoursResult))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblEmployeeSummaryTotalPay)
+								.addComponent(lblEmployeeSummaryTotalPayResult)))
+						.addGroup(gl_panelEmployeeSummary.createSequentialGroup()
+							.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblEmployeeSummaryFrom)
+								.addComponent(txtEmployeeSummaryFrom, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_panelEmployeeSummary.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblEmployeeSummaryTo)
+								.addComponent(txtEmployeeSummaryTo, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+							.addGap(18)
+							.addComponent(btnCalculate)))
+					.addGap(68)
 					.addComponent(btnGoBack)
-					.addGap(47))
+					.addGap(41))
 		);
 		panelEmployeeSummary.setLayout(gl_panelEmployeeSummary);
 		

@@ -11,11 +11,30 @@ public class AcmeServer extends AbstractServer {
 
 	public AcmeServer(int port) {
 		super(port);
+		
+		// Sample department
+		Department driverDept = new Department("000", DepartmentType.Production);
+		
+		String[] employeeCodes = new String[]{"001","002", "003", "004", "005"};
+		String[] employeeNames = new String[]{"Vincent Moore","Devon Clements", "Micah Downs", "James English", "John Anthony"};
+		
+		for(int i = 0; i < employeeCodes.length; i++) {
+			String code = employeeCodes[i];
+			String name = employeeNames[i];
+			driverDept.addEmployee(code, name);
+			driverDept.punch(code, HourType.Vacation, 1, 8, 0);
+			driverDept.punch(code, HourType.Regular, 2, 12, 0);
+			driverDept.punch(code, HourType.Regular, 3, 10, 0);
+			driverDept.punch(code, HourType.Regular, 4, 10, 0);
+			driverDept.punch(code, HourType.Regular, 5, 10, 0);
+			driverDept.punch(code, HourType.Callback, 6, 2, 0);
+		}
+		
+		departmentStore.put("000", driverDept);
 	}
 
 	public void handleDepartmentLogin(Message message, ConnectionToClient client) throws IOException {
 		String code = (String) message.objects[0];
-		System.out.println(code);
 		if(departmentStore.containsKey(code)){
 			client.setInfo(CLIENT_KEY_DEPARTMENT_CODE, code);
 			client.sendToClient(new Message("!department-login", "Successfully logged into department."));
@@ -59,8 +78,8 @@ public class AcmeServer extends AbstractServer {
 		}
 		Department department = departmentStore.get(departmentCode);
 		String employeeId = (String) message.objects[0];
-		Date date = (Date) message.objects[1];
-		Timesheet sheet = department.getTimesheet(employeeId, date);
+		Date[] dates = (Date[]) message.objects[1];
+		Timesheet sheet = department.getTimesheet(employeeId, dates);
 		client.sendToClient(new Message("!timesheet", sheet));
 		return;
 	}
@@ -88,8 +107,7 @@ public class AcmeServer extends AbstractServer {
 		String departmentCode = (String) client.getInfo(CLIENT_KEY_DEPARTMENT_CODE);
 		Department department = departmentStore.get(departmentCode);
 		String id = (String) message.objects[0];
-		Employee emp = department.removeEmployee(id);
-		System.out.printf("We removed %s\n", emp.name);
+		department.removeEmployee(id);
 		client.sendToClient(new Message("!employee-remove", ""));
 	}
 

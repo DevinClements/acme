@@ -62,8 +62,8 @@ public class AcmeClient extends AbstractClient {
 		return;
 	}
 	
-	public void getTimesheet(String id, Date date) throws IOException {
-		Object[] objectsToSend = new Object[]{id, new Date()};
+	public void getTimesheet(String id, Date[] dates) throws IOException {
+		Object[] objectsToSend = new Object[]{id, dates};
 		this.sendToServer(new Message(COMMAND_EMPLOYEE_TIMESHEET, objectsToSend));
 		return;
 	}
