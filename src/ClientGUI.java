@@ -33,6 +33,8 @@ import javax.swing.DefaultListModel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class ClientGUI implements Receiver {
 
@@ -118,15 +120,11 @@ public class ClientGUI implements Receiver {
 				break;
 			case "!timesheet":
 				Timesheet sheet = (Timesheet) message.objects[0];
-				String code = this.txtMainEmployeeCode.getText();
-				for(Employee emp : this.employees) {
-					if(emp.id.equals(code)) {
-						this.lblEmployeeSummaryNameResult.setText(emp.name);
-						this.lblEmployeeSummaryIdResult.setText(emp.id);
-						this.lblEmployeeSummaryTotalHoursResult.setText("" + sheet.getHoursWorked());
-						this.lblEmployeeSummaryTotalPayResult.setText("" + sheet.getHoursPaid());
-					}
-				}
+				Employee emp = this.employees.get(this.listEmployee.getSelectedIndex());
+				this.lblEmployeeSummaryNameResult.setText(emp.name);
+				this.lblEmployeeSummaryIdResult.setText(emp.id);
+				this.lblEmployeeSummaryTotalHoursResult.setText("" + sheet.getHoursWorked());
+				this.lblEmployeeSummaryTotalPayResult.setText("" + sheet.getHoursPaid());
 				break;
 			case "!department-login":
 				System.out.printf("Success: %s\n", (String) message.objects[0]);
@@ -241,6 +239,13 @@ public class ClientGUI implements Receiver {
 	
 	private void didClickEmployeeSummary() {
 		this.goTo(PANEL_SUMMARY_EMPLOYEE);
+		Calendar currentDate = Calendar.getInstance();
+		int currentDay = currentDate.get(Calendar.DAY_OF_MONTH);
+		int currentMonth = currentDate.get(Calendar.MONTH);
+		int currentYear = currentDate.get(Calendar.YEAR);
+		String dateString = "" + currentMonth + "-" + currentDay + "-" + currentYear;
+		this.txtEmployeeSummaryFrom.setText(dateString);
+		this.txtEmployeeSummaryTo.setText(dateString);
 	}
 	
 	private void didClickAddEmployeeSubmit() {
@@ -299,12 +304,14 @@ public class ClientGUI implements Receiver {
 	}
 	
 	private void didClickGoBack() {
-		this.goTo(PANEL_MAIN);
 		this.lblEmployeeSummaryIdResult.setText("");
 		this.lblEmployeeSummaryNameResult.setText("");
 		this.lblEmployeeSummaryStartedResult.setText("");
 		this.lblEmployeeSummaryTotalHoursResult.setText("");
 		this.lblEmployeeSummaryTotalPayResult.setText("");
+		this.txtEmployeeSummaryFrom.setText("");
+		this.txtEmployeeSummaryTo.setText("");
+		this.goTo(PANEL_MAIN);
 	}
 	
 	private void didClickDepartmentCreateCancel() {
@@ -335,6 +342,16 @@ public class ClientGUI implements Receiver {
 	 */
 	private void initialize() {
 		frame = new JFrame();
+		frame.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				try {
+					client.disconnect();
+				} catch(IOException ex) {
+					System.out.println(ex);
+				}
+			}
+		});
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
