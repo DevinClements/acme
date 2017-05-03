@@ -10,6 +10,7 @@ public class AcmeClient extends AbstractClient {
 	final private String COMMAND_DEPARTMENT_EMPLOYEE_REMOVE = "!employee-remove";
 	final private String COMMAND_EMPLOYEE_PUNCH = "!punch";
 	final private String COMMAND_EMPLOYEE_TIMESHEET = "!timesheet";
+	final private String COMMAND_EMPLOYEE_TIMESHEET_RANGE = "!timesheet-range";
 	
 	private Receiver receiver;
 
@@ -65,6 +66,12 @@ public class AcmeClient extends AbstractClient {
 	public void getTimesheet(String id, Date[] dates) throws IOException {
 		Object[] objectsToSend = new Object[]{id, dates};
 		this.sendToServer(new Message(COMMAND_EMPLOYEE_TIMESHEET, objectsToSend));
+		return;
+	}
+	
+	public void getTimesheet(String id, Date from, Date to) throws IOException {
+		Object[] objectsToSend = new Object[]{id, from, to};
+		this.sendToServer(new Message(COMMAND_EMPLOYEE_TIMESHEET_RANGE, objectsToSend));
 		return;
 	}
 	

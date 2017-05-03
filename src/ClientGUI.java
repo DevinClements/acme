@@ -87,6 +87,9 @@ public class ClientGUI implements Receiver {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		Calendar swag = Calendar.getInstance();
+		swag.set(Calendar.DAY_OF_WEEK, 1);
+		System.out.println(swag.getTime());
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -118,7 +121,7 @@ public class ClientGUI implements Receiver {
 				System.out.printf("We punched the timeclock.\n");
 				this.txtMainEmployeeCode.setText("");
 				break;
-			case "!timesheet":
+			case "!timesheet-range":
 				Timesheet sheet = (Timesheet) message.objects[0];
 				Employee emp = this.employees.get(this.listEmployee.getSelectedIndex());
 				this.lblEmployeeSummaryNameResult.setText(emp.name);
@@ -241,7 +244,7 @@ public class ClientGUI implements Receiver {
 		this.goTo(PANEL_SUMMARY_EMPLOYEE);
 		Calendar currentDate = Calendar.getInstance();
 		int currentDay = currentDate.get(Calendar.DAY_OF_MONTH);
-		int currentMonth = currentDate.get(Calendar.MONTH);
+		int currentMonth = currentDate.get(Calendar.MONTH) + 1;
 		int currentYear = currentDate.get(Calendar.YEAR);
 		String dateString = "" + currentMonth + "-" + currentDay + "-" + currentYear;
 		this.txtEmployeeSummaryFrom.setText(dateString);
@@ -268,11 +271,11 @@ public class ClientGUI implements Receiver {
 		String[] fromTextDelimited = fromText.split("-");
 		String[] toTextDelimited = toText.split("-");
 		
-		int fromMonth = Integer.parseInt(fromTextDelimited[0]);
+		int fromMonth = Integer.parseInt(fromTextDelimited[0]) - 1;
 		int fromDay = Integer.parseInt(fromTextDelimited[1]);
 		int fromYear = Integer.parseInt(fromTextDelimited[2]);
 		
-		int toMonth = Integer.parseInt(toTextDelimited[0]);
+		int toMonth = Integer.parseInt(toTextDelimited[0]) - 1;
 		int toDay = Integer.parseInt(toTextDelimited[1]);
 		int toYear = Integer.parseInt(toTextDelimited[2]);
 		
@@ -286,8 +289,7 @@ public class ClientGUI implements Receiver {
 		Employee emp = this.employees.get(index);
 		
 		try {
-			Date[] dates = new Date[]{calendarFrom.getTime(), calendarTo.getTime()};
-			this.client.getTimesheet(emp.id, dates);
+			this.client.getTimesheet(emp.id, calendarFrom.getTime(), calendarTo.getTime());
 		} catch(IOException e) {
 			System.out.println(e);
 		}

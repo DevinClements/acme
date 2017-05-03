@@ -84,6 +84,21 @@ public class AcmeServer extends AbstractServer {
 		return;
 	}
 	
+	public void handleTimesheetForRange(Message message, ConnectionToClient client) throws IOException {
+		String departmentCode = (String) client.getInfo(CLIENT_KEY_DEPARTMENT_CODE);
+		if(!departmentStore.containsKey(departmentCode)) {
+			client.sendToClient(new Message("!error", null));
+			return;
+		}
+		Department department = departmentStore.get(departmentCode);
+		String employeeId = (String) message.objects[0];
+		Date from = (Date) message.objects[1];
+		Date to = (Date) message.objects[2];
+		Timesheet sheet = department.getTimesheet(employeeId, from, to);
+		client.sendToClient(new Message("!timesheet-range", sheet));
+		return;
+	}
+	
 	public void handleEmployeeList(Message message, ConnectionToClient client) throws IOException {
 		String departmentCode = (String) client.getInfo(CLIENT_KEY_DEPARTMENT_CODE);
 		Department department = departmentStore.get(departmentCode);
@@ -136,6 +151,9 @@ public class AcmeServer extends AbstractServer {
 						break;
 					case "!timesheet":
 						handleTimesheetForDate(message, client);
+						break;
+					case "!timesheet-range":
+						handleTimesheetForRange(message, client);
 						break;
 					default:
 						this.sendToAllClients(msg);

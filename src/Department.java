@@ -98,6 +98,25 @@ public class Department implements Serializable {
 		return new Timesheet(tickets);
 	}
 	
+	public Timesheet getTimesheet(String id, Date from, Date to) {
+		ArrayList<Date> dates = new ArrayList<Date>();
+		
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(to);
+		cal.add(Calendar.DATE, 1);
+		Date lastDay = cal.getTime();
+		
+		cal.setTime(from);
+		
+		while(!cal.getTime().equals(lastDay)) {
+			dates.add(cal.getTime());
+			cal.add(Calendar.DATE, 1);
+		}
+		
+		return getTimesheet(id, dates.toArray(new Date[dates.size()]));
+		
+	}
+	
 	public ArrayList<Ticket> getEmployeeTickets(String id, Date date) {
 		ArrayList<Ticket> employeeTickets = new ArrayList<Ticket>();
 		ArrayList<Ticket> ticketsForDate = tickets.get(Ticket.keyFromDate(date));

@@ -1,36 +1,30 @@
 import java.util.Calendar;
-import java.io.IOException;
 import java.util.Date;
 
-public class Driver implements Receiver {
+public class Driver {
 	static Department dept = new Department("123", DepartmentType.Production);
 	
-	public Driver() {
-		
-	}
-	
 	public static void main(String[] args) {
-		String codeVincent = "123";
-		String codeArvell = "321";
-		String codeMalena = "231";
+		String code = "123";
 		
-		try {
-			Driver driver = new Driver();
-			
-			AcmeClient client = new AcmeClient("localhost", 5555, driver);
-			client.connect();
-			
-			client.createDepartment("123", DepartmentType.Production);
-			
-			client.addEmployee(codeVincent, "Vincent Moore");
-			client.addEmployee(codeArvell, "Arvell Webb");
-			client.addEmployee(codeMalena, "Malena Bravo");
-			
-			
-		} catch(IOException e) {
-			System.out.println(e);
+		dept.addEmployee(code, "Vincent Moore");
+		
+		// Set hours
+		dept.punch(code, HourType.Vacation, 1, 8, 0);
+		dept.punch(code, HourType.Regular, 2, 12, 0);
+		dept.punch(code, HourType.Regular, 3, 10, 0);
+		dept.punch(code, HourType.Regular, 4, 10, 0);
+		dept.punch(code, HourType.Regular, 5, 10, 0);
+		dept.punch(code, HourType.Callback, 6, 2, 0);
+		
+		// Check hours
+		Date[] dates = new Date[7];
+		for(int i = 0; i < dates.length; i++) {
+			dates[i] = getDate(i+1,0,0);
 		}
 
+		Timesheet sheet = dept.getTimesheet(code, dates);
+		System.out.println(sheet.getHoursWorked());
 	}
 
 	public static Ticket punch(String id, HourType type, int day, int hour, int minute) {
@@ -48,7 +42,4 @@ public class Driver implements Receiver {
 		cal.set(Calendar.MILLISECOND, 0);
 		return cal.getTime();
 	}
-
-	@Override
-	public void receive(Message message) {}
 }
