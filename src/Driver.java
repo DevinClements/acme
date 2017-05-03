@@ -16,6 +16,7 @@ public class Driver {
 		dept.punch(code, HourType.Regular, 4, 10, 0);
 		dept.punch(code, HourType.Regular, 5, 10, 0);
 		dept.punch(code, HourType.Callback, 6, 2, 0);
+		dept.punch(code, HourType.Callback, 7, 1, 0);
 		
 		// Check hours
 		Date[] dates = new Date[7];
@@ -24,7 +25,7 @@ public class Driver {
 		}
 
 		Timesheet sheet = dept.getTimesheet(code, dates);
-		System.out.println(sheet.getHoursWorked());
+		System.out.println(sheet.getHoursPaid());
 	}
 
 	public static Ticket punch(String id, HourType type, int day, int hour, int minute) {

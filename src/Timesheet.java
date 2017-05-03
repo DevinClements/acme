@@ -63,7 +63,7 @@ public class Timesheet implements Serializable {
 		if(timeAndHalfApplicable > FOURTY_HOURS) {
 			timeAndHalf += timeAndHalfApplicable - FOURTY_HOURS;
 			timeAndHalfApplicable -= timeAndHalf;
-		} else {
+		} else if(callback != 0) {
 			timeAndHalfNotApplicable += Math.max(FOUR_HOURS, callback);
 		}
 		
