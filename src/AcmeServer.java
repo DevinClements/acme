@@ -103,9 +103,6 @@ public class AcmeServer extends AbstractServer {
 		String departmentCode = (String) client.getInfo(CLIENT_KEY_DEPARTMENT_CODE);
 		Department department = departmentStore.get(departmentCode);
 		Employee[] emps = department.getAllEmployee();
-		for(Employee e: emps) {
-			System.out.println(e.name);
-		}
 		client.sendToClient(new Message("!employee-list", emps));
 	}
 	
@@ -124,6 +121,24 @@ public class AcmeServer extends AbstractServer {
 		String id = (String) message.objects[0];
 		department.removeEmployee(id);
 		client.sendToClient(new Message("!employee-remove", ""));
+	}
+	
+	public void handleTicketReplace(Message message, ConnectionToClient client) throws IOException {
+		System.out.println("we are here");
+		String departmentCode = (String) client.getInfo(CLIENT_KEY_DEPARTMENT_CODE);
+		Department department = departmentStore.get(departmentCode);
+		String id = (String) message.objects[0];
+		Ticket[] toRemove = (Ticket[]) message.objects[1];
+		Ticket[] toAdd = (Ticket[]) message.objects[2];
+		if(toRemove != null) {
+			department.removeTicket(id, toRemove[0]);
+			department.removeTicket(id, toRemove[1]);
+		}
+		if(toAdd != null) {
+			department.addTicket(id, toAdd[0]);
+			department.addTicket(id, toAdd[1]);
+		}
+		client.sendToClient(new Message("!ticket-replace", ""));
 	}
 
 	public void handleMessageFromClient(Object msg, ConnectionToClient client) {
@@ -154,6 +169,9 @@ public class AcmeServer extends AbstractServer {
 						break;
 					case "!timesheet-range":
 						handleTimesheetForRange(message, client);
+						break;
+					case "!ticket-replace":
+						handleTicketReplace(message, client);
 						break;
 					default:
 						this.sendToAllClients(msg);

@@ -150,6 +150,14 @@ public class Department implements Serializable {
 		}
 		return clockIn(employee.id, hourType, date);
 	}
+	
+	public void removeTicket(String id, Ticket toRemove) {
+		this.tickets.get(Ticket.keyFromDate(toRemove.datetime)).remove(toRemove);
+	}
+	
+	public void addTicket(String id, Ticket toAdd) {
+		this.tickets.get(Ticket.keyFromDate(toAdd.datetime)).add(toAdd);
+	}
 
 	private Ticket clockIn(String employeeId, HourType hourType, Date date) {
 		Ticket ticket = new Ticket(date, hourType, TicketType.ClockIn, employeeId);

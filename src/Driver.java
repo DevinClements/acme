@@ -11,12 +11,14 @@ public class Driver {
 		
 		// Set hours
 		dept.punch(code, HourType.Vacation, 1, 8, 0);
-		dept.punch(code, HourType.Regular, 2, 12, 0);
-		dept.punch(code, HourType.Regular, 3, 10, 0);
-		dept.punch(code, HourType.Regular, 4, 10, 0);
-		dept.punch(code, HourType.Regular, 5, 10, 0);
-		dept.punch(code, HourType.Callback, 6, 2, 0);
-		dept.punch(code, HourType.Callback, 7, 1, 0);
+		dept.punch(code, HourType.Vacation, 2, 8, 0);
+		dept.punch(code, HourType.Vacation, 3, 8, 0);
+		
+		dept.punch(code, HourType.Regular, 4, 5, 0);
+		dept.punch(code, HourType.Regular, 4, 5, 0);
+		dept.punch(code, HourType.Callback, 4, 2, 0);
+		
+		dept.punch(code, HourType.Holiday, 5, 8, 0);
 		
 		// Check hours
 		Date[] dates = new Date[7];

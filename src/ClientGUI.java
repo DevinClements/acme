@@ -33,8 +33,15 @@ import javax.swing.DefaultListModel;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.text.SimpleDateFormat;
+import java.text.ParseException;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class ClientGUI implements Receiver {
 
@@ -43,6 +50,7 @@ public class ClientGUI implements Receiver {
 	private final String PANEL_ADD_EMPLOYEE = "employee_add";
 	private final String PANEL_SUMMARY_EMPLOYEE = "employee_summary";
 	private final String PANEL_CREATE = "create";
+	private final String PANEL_EDIT_EMPLOYEE = "employee_edit";
 	
 	private AcmeClient client;
 	
@@ -69,6 +77,9 @@ public class ClientGUI implements Receiver {
 	private JTextField txtMainEmployeeCode;
 	private JTextField txtEmployeeSummaryFrom;
 	private JTextField txtEmployeeSummaryTo;
+	private JTextField txtEmployeeEditDate;
+	private JTextField txtEmployeeEditClockIn;
+	private JTextField txtEmployeeEditClockOut;
 	
 	private JLabel lblEmployeeSummaryNameResult;
 	private JLabel lblEmployeeSummaryIdResult;
@@ -77,11 +88,16 @@ public class ClientGUI implements Receiver {
 	private JLabel lblEmployeeSummaryTotalPayResult;
 	
 	private JList<String> listEmployee;
+	private JList<String> listEmployeeEditTicket;
+	
+	private JComboBox comboEmployeeEditType;
 	
 	// Data Model
 	String deptCode = "";
-	DefaultListModel<String> employeeModel = new DefaultListModel<>();
+	DefaultListModel<String> employeeModel = new DefaultListModel<String>();
+	DefaultListModel<String> employeeEditDates = new DefaultListModel<String>();
 	ArrayList<Employee> employees = new ArrayList<Employee>();
+	Timesheet employeeEditTimesheet;
 	
 	/**
 	 * Launch the application.
@@ -121,6 +137,16 @@ public class ClientGUI implements Receiver {
 				System.out.printf("We punched the timeclock.\n");
 				this.txtMainEmployeeCode.setText("");
 				break;
+			case "!timesheet":
+				Timesheet editSheet = (Timesheet) message.objects[0];
+				this.employeeEditTimesheet = editSheet;
+				this.employeeEditDates.clear();
+				for(Ticket ticket : this.employeeEditTimesheet.tickets) {
+					if(ticket.ticketType == TicketType.ClockIn) {
+						this.employeeEditDates.addElement(ticket.datetime.toString());
+					}
+				}
+				break;
 			case "!timesheet-range":
 				Timesheet sheet = (Timesheet) message.objects[0];
 				Employee emp = this.employees.get(this.listEmployee.getSelectedIndex());
@@ -128,6 +154,10 @@ public class ClientGUI implements Receiver {
 				this.lblEmployeeSummaryIdResult.setText(emp.id);
 				this.lblEmployeeSummaryTotalHoursResult.setText("" + sheet.getHoursWorked());
 				this.lblEmployeeSummaryTotalPayResult.setText("" + sheet.getHoursPaid());
+				break;
+			case "!ticket-replace":
+				this.clearEditPanel();
+				this.didClickEmployeeEditGetDate();
 				break;
 			case "!department-login":
 				System.out.printf("Success: %s\n", (String) message.objects[0]);
@@ -172,6 +202,17 @@ public class ClientGUI implements Receiver {
 				System.out.printf("Invalid command.\n");
 				break;
 		}
+	}
+	
+	private void didSelectEmployeeEditDate() {
+		this.txtEmployeeEditClockIn.setText("");
+		this.txtEmployeeEditClockOut.setText("");
+		int index = this.listEmployeeEditTicket.getSelectedIndex();
+		Ticket ticketClockIn = this.employeeEditTimesheet.tickets.get(index);
+		Ticket ticketClockOut = this.employeeEditTimesheet.tickets.get(index+1);
+		this.txtEmployeeEditClockIn.setText(ticketClockIn.datetime.toString());
+		this.txtEmployeeEditClockOut.setText(ticketClockOut.datetime.toString());
+		this.comboEmployeeEditType.setSelectedItem(ticketClockIn.hourType);
 	}
 	
 	private void goTo(String page) {
@@ -237,7 +278,24 @@ public class ClientGUI implements Receiver {
 	}
 	
 	private void didClickEditEmployee() {
-		System.out.println("Waiting to implement this.");
+		this.goTo(this.PANEL_EDIT_EMPLOYEE);
+		Calendar cal = Calendar.getInstance();
+		Date date = cal.getTime();
+		
+		int month = cal.get(Calendar.MONTH) + 1;
+		int day = cal.get(Calendar.DAY_OF_MONTH);
+		int year = cal.get(Calendar.YEAR);
+		
+		String dateString = "" + month + "-" + day + "-" + year;
+		this.txtEmployeeEditDate.setText(dateString);
+		
+		Employee selectedEmployee = this.employees.get(this.listEmployee.getSelectedIndex());
+		
+		try {
+			this.client.getTimesheet(selectedEmployee.id, new Date[]{date});
+		} catch(IOException e) {
+			System.out.println(e);
+		}
 	}
 	
 	private void didClickEmployeeSummary() {
@@ -339,6 +397,111 @@ public class ClientGUI implements Receiver {
 	private void didClickLoginCreate() {
 		this.goTo(PANEL_CREATE);
 	}
+	
+	private void clearEditPanel() {
+		this.listEmployeeEditTicket.clearSelection();
+		this.txtEmployeeEditClockIn.setText("");
+		this.txtEmployeeEditClockOut.setText("");
+		this.comboEmployeeEditType.setSelectedItem(HourType.Regular);
+	}
+	
+	private void didClickEmployeeEditClear() {
+		this.clearEditPanel();
+	}
+	
+	private void didClickEmployeeEditGetDate() {
+		this.clearEditPanel();
+		
+		String dateText = this.txtEmployeeEditDate.getText();
+		String[] dateTextDelimited = dateText.split("-");
+		
+		int toMonth = Integer.parseInt(dateTextDelimited[0]) - 1;
+		int toDay = Integer.parseInt(dateTextDelimited[1]);
+		int toYear = Integer.parseInt(dateTextDelimited[2]);
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(toYear, toMonth, toDay);
+		
+		int index = this.listEmployee.getSelectedIndex();
+		Employee emp = this.employees.get(index);
+		
+		try {
+			this.client.getTimesheet(emp.id, new Date[]{calendar.getTime()});
+		} catch(IOException e) {
+			System.out.println(e);
+		}
+	}
+	
+	private void didClickEmployeeEditGoBack() {
+		this.goTo(this.PANEL_MAIN);
+	}
+	
+	private void didClickEmployeeEditApply() {
+		Employee employee = this.employees.get(this.listEmployee.getSelectedIndex());
+		String textClockIn = this.txtEmployeeEditClockIn.getText();
+		String textClockOut = this.txtEmployeeEditClockOut.getText();
+		Ticket[] toRemove = new Ticket[2];
+		Ticket[] toAdd = new Ticket[2];
+		
+		if(this.listEmployeeEditTicket.isSelectionEmpty()) {
+			if(textClockIn.isEmpty() || textClockOut.isEmpty()) {
+				return;
+			} else {
+				Date dateClockIn = getDateFromString(textClockIn);
+				Date dateClockOut = getDateFromString(textClockOut);
+				HourType type = (HourType) this.comboEmployeeEditType.getSelectedItem();
+				Ticket ticketClockIn = new Ticket(dateClockIn, type, TicketType.ClockIn, employee.id);
+				Ticket ticketClockOut = new Ticket(dateClockOut, type, TicketType.ClockIn, employee.id);
+				toAdd[0] = ticketClockIn;
+				toAdd[1] = ticketClockOut;
+			}
+		} else {
+			if(textClockIn.isEmpty() || textClockOut.isEmpty()) {
+				Date dateClockIn = getDateFromString(textClockIn);
+				Date dateClockOut = getDateFromString(textClockOut);
+				System.out.println(dateClockIn);
+				HourType type = (HourType) this.comboEmployeeEditType.getSelectedItem();
+				Ticket ticketClockIn = new Ticket(dateClockIn, type, TicketType.ClockIn, employee.id);
+				Ticket ticketClockOut = new Ticket(dateClockOut, type, TicketType.ClockIn, employee.id);
+				toRemove[0] = ticketClockIn;
+				toRemove[1] = ticketClockOut;
+			} else {
+				int selectedIndex = this.listEmployeeEditTicket.getSelectedIndex();
+				Ticket ticketClockInRemove = this.employeeEditTimesheet.tickets.get(selectedIndex);
+				Ticket ticketClockOutRemove = this.employeeEditTimesheet.tickets.get(selectedIndex+1);
+				toRemove[0] = ticketClockInRemove;
+				toRemove[1] = ticketClockOutRemove;
+				
+				Date dateClockIn = getDateFromString(textClockIn);
+				Date dateClockOut = getDateFromString(textClockOut);
+				HourType type = (HourType) this.comboEmployeeEditType.getSelectedItem();
+				Ticket ticketClockInAdd = new Ticket(dateClockIn, type, TicketType.ClockIn, employee.id);
+				Ticket ticketClockOutAdd = new Ticket(dateClockOut, type, TicketType.ClockIn, employee.id);
+				toAdd[0] = ticketClockInAdd;
+				toAdd[1] = ticketClockOutAdd;
+			}
+		}
+		toAdd = toAdd.length == 0 ? null : toAdd;
+		toRemove = toRemove.length == 0 ? null : toRemove;
+		
+		try {
+			this.client.replaceTickets(employee.id, toRemove, toAdd);
+		} catch(IOException e) {
+			System.out.println(e);
+		}
+	}
+	
+	private Date getDateFromString(String dateString) {
+		String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
+		Date date = new Date();
+		try {
+			date = new SimpleDateFormat(pattern).parse(dateString);
+		} catch(ParseException e) {
+			System.out.println(e);
+		}
+		return date;
+	}
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -884,6 +1047,128 @@ public class ClientGUI implements Receiver {
 					.addContainerGap(96, Short.MAX_VALUE))
 		);
 		panelCreateDepartment.setLayout(gl_panelCreateDepartment);
+		
+		JPanel panelEmployeeEdit = new JPanel();
+		containerMain.add(panelEmployeeEdit, this.PANEL_EDIT_EMPLOYEE);
+		
+		txtEmployeeEditDate = new JTextField();
+		txtEmployeeEditDate.setColumns(10);
+		
+		listEmployeeEditTicket = new JList<String>(this.employeeEditDates);
+		listEmployeeEditTicket.addListSelectionListener(new ListSelectionListener() {
+			public void valueChanged(ListSelectionEvent e) {
+				if(!listEmployeeEditTicket.isSelectionEmpty()) {
+					didSelectEmployeeEditDate();
+				}
+			}
+		});
+		listEmployeeEditTicket.setBorder(UIManager.getBorder("TextField.border"));
+		
+		JLabel lblEmployeeEditClockIn = new JLabel("Clock In:");
+		
+		JLabel lblEmployeeEditClockOut = new JLabel("Clock Out:");
+		
+		txtEmployeeEditClockIn = new JTextField();
+		txtEmployeeEditClockIn.setColumns(10);
+		
+		txtEmployeeEditClockOut = new JTextField();
+		txtEmployeeEditClockOut.setColumns(10);
+		
+		comboEmployeeEditType = new JComboBox();
+		comboEmployeeEditType.setModel(new DefaultComboBoxModel(HourType.values()));
+		
+		JLabel lblEmployeeEditHourType = new JLabel("Type:");
+		
+		JButton btnEmployeeEditApply = new JButton("Apply");
+		btnEmployeeEditApply.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickEmployeeEditApply();
+			}
+		});
+		
+		JButton btnEmployeeEditClear = new JButton("Clear");
+		btnEmployeeEditClear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickEmployeeEditClear();
+			}
+		});
+		
+		JButton btnEmployeeEditApplyGoBack = new JButton("Go Back");
+		btnEmployeeEditApplyGoBack.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickEmployeeEditGoBack();
+			}
+		});
+		
+		JButton btnEmployeeEditGetDate = new JButton("Get Date");
+		btnEmployeeEditGetDate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				didClickEmployeeEditGetDate();
+			}
+		});
+		GroupLayout gl_panelEmployeeEdit = new GroupLayout(panelEmployeeEdit);
+		gl_panelEmployeeEdit.setHorizontalGroup(
+			gl_panelEmployeeEdit.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panelEmployeeEdit.createSequentialGroup()
+					.addGap(12)
+					.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.LEADING, false)
+						.addComponent(listEmployeeEditTicket, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(btnEmployeeEditGetDate, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addComponent(txtEmployeeEditDate))
+					.addPreferredGap(ComponentPlacement.RELATED, 49, Short.MAX_VALUE)
+					.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.TRAILING)
+						.addComponent(btnEmployeeEditApply, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+						.addGroup(gl_panelEmployeeEdit.createSequentialGroup()
+							.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.TRAILING)
+								.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.LEADING)
+									.addComponent(lblEmployeeEditClockIn)
+									.addComponent(lblEmployeeEditClockOut))
+								.addComponent(lblEmployeeEditHourType, GroupLayout.PREFERRED_SIZE, 67, GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(txtEmployeeEditClockOut)
+								.addComponent(txtEmployeeEditClockIn)
+								.addComponent(comboEmployeeEditType, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+						.addGroup(gl_panelEmployeeEdit.createSequentialGroup()
+							.addComponent(btnEmployeeEditClear, GroupLayout.PREFERRED_SIZE, 80, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(btnEmployeeEditApplyGoBack)
+							.addGap(12)))
+					.addGap(41))
+		);
+		gl_panelEmployeeEdit.setVerticalGroup(
+			gl_panelEmployeeEdit.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panelEmployeeEdit.createSequentialGroup()
+					.addContainerGap()
+					.addComponent(txtEmployeeEditDate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.LEADING, false)
+						.addGroup(gl_panelEmployeeEdit.createSequentialGroup()
+							.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.BASELINE)
+								.addComponent(lblEmployeeEditClockIn)
+								.addComponent(txtEmployeeEditClockIn, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.BASELINE)
+								.addComponent(txtEmployeeEditClockOut, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblEmployeeEditClockOut))
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.BASELINE)
+								.addComponent(comboEmployeeEditType, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblEmployeeEditHourType))
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(btnEmployeeEditApply, GroupLayout.PREFERRED_SIZE, 40, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
+							.addGroup(gl_panelEmployeeEdit.createParallelGroup(Alignment.BASELINE)
+								.addComponent(btnEmployeeEditClear)
+								.addComponent(btnEmployeeEditApplyGoBack))
+							.addGap(13))
+						.addGroup(gl_panelEmployeeEdit.createSequentialGroup()
+							.addComponent(btnEmployeeEditGetDate)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(listEmployeeEditTicket, GroupLayout.PREFERRED_SIZE, 190, GroupLayout.PREFERRED_SIZE)))
+					.addGap(17))
+		);
+		panelEmployeeEdit.setLayout(gl_panelEmployeeEdit);
 		frame.getContentPane().setLayout(groupLayout);
 	}
 }
